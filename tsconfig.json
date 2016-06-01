@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "out": "output.js",
+        "watch": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
