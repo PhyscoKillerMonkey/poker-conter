@@ -1,5 +1,5 @@
 // Global variables
-var players;
+var players = [];
 var startMoney = 100;
 var bigBlind = 2;
 /**
@@ -34,6 +34,7 @@ function play(round) {
         var curPlayers = players;
         while (playersReady < curPlayers.length) {
             curPlayers[nextPlayer].choose();
+            playersReady++;
             nextPlayer++;
             if (nextPlayer >= curPlayers.length) {
                 nextPlayer = 0;
@@ -44,4 +45,7 @@ function play(round) {
 }
 window.onload = function () {
     console.log("Hello world!");
+    players.push(new Player("Reece", startMoney));
+    players.push(new Player("Laura", startMoney));
+    play(0);
 };
