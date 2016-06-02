@@ -1,8 +1,23 @@
 <html>
   <head>
     <title>Poker Chip Counter</title>
+    
+    <style>
+      
+    </style>
   </head>
   
   <body>
-    <script src="output.js"></script></body>
+    
+    <div class="playerPanel">
+      <h1 id="curPlayerName">Player Name</h1>
+      <p id="potTotal">Pot: 0</p>
+      <p id="potPerPlayer">Per Player: 0</p>
+      <button type="button" onclick="check()">Check</button>
+      <button type="button" onclick="raise()">Raise</button>
+      <button type="button" onclick="fold()">Fold</button>
+    </div>
+    
+    <script src="output.js"></script>
+  </body>
 </html>
