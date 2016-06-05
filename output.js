@@ -11,9 +11,11 @@ var playersReady = 0;
 var curPlayers = players;
 // DOM elements
 var page = {
-    playerName: document.getElementById("curPlayerName"),
-    potTotal: document.getElementById("potTotal"),
-    playerPot: document.getElementById("potPerPlayer")
+    playerName: document.getElementById("nameDisplay"),
+    potTotal: document.getElementById("potDisplay"),
+    playerPot: document.getElementById("potPPDisplay"),
+    checkButton: document.getElementById("checkButton"),
+    betButton: document.getElementById("betButton")
 };
 /**
  * Player
@@ -45,18 +47,22 @@ function check() {
     }
     doStuff();
 }
-function raise() {
-    console.log("Player raised");
-    var p = players[nextPlayer];
-    potPerPlayer++;
-    p.pay(potPerPlayer - p.inCurrentPot);
-    playersReady = 1;
-    nextPlayer++;
-    if (nextPlayer >= curPlayers.length) {
-        nextPlayer = 0;
-    }
-    doStuff();
+function lowerBet() {
 }
+function raiseBet() {
+}
+function bet() {
+}
+// function raise() {
+//     console.log("Player raised");
+//     let p = players[nextPlayer];
+//     potPerPlayer++;
+//     p.pay(potPerPlayer - p.inCurrentPot);
+//     playersReady = 1;
+//     nextPlayer++;
+//     if (nextPlayer >= curPlayers.length) {nextPlayer = 0}
+//     doStuff();
+// }
 function fold() {
     console.log("Player folded");
     curPlayers.splice(nextPlayer);

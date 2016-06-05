@@ -12,9 +12,11 @@ let curPlayers = players;
 
 // DOM elements
 let page = {
-    playerName: document.getElementById("curPlayerName"),
-    potTotal: document.getElementById("potTotal"),
-    playerPot: document.getElementById("potPerPlayer")
+    playerName: document.getElementById("nameDisplay"),
+    potTotal: document.getElementById("potDisplay"),
+    playerPot: document.getElementById("potPPDisplay"),
+    checkButton: document.getElementById("checkButton"),
+    betButton: document.getElementById("betButton")
 }
 
 /**
@@ -55,18 +57,30 @@ function check() {
     doStuff();
 }
 
-function raise() {
-    console.log("Player raised");
+function lowerBet() {
     
-    let p = players[nextPlayer];
-    potPerPlayer++;
-    p.pay(potPerPlayer - p.inCurrentPot);
-    
-    playersReady = 1;
-    nextPlayer++;
-    if (nextPlayer >= curPlayers.length) {nextPlayer = 0}
-    doStuff();
 }
+
+function raiseBet() {
+    
+}
+
+function bet() {
+    
+}
+
+// function raise() {
+//     console.log("Player raised");
+    
+//     let p = players[nextPlayer];
+//     potPerPlayer++;
+//     p.pay(potPerPlayer - p.inCurrentPot);
+    
+//     playersReady = 1;
+//     nextPlayer++;
+//     if (nextPlayer >= curPlayers.length) {nextPlayer = 0}
+//     doStuff();
+// }
 
 function fold() {
     console.log("Player folded");

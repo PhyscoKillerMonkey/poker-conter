@@ -3,20 +3,58 @@
     <title>Poker Chip Counter</title>
     
     <style>
+      body {
+        font-family: sans-serif;
+      }
       
+      .headerDisplay {
+        display: inline;
+      }
+      
+      #roundDisplay {
+        margin-right: 20px;
+      }
+      
+      #playerPanel {
+        width: max-content;
+      }
+      
+      .buttonContainer {
+        width: 132px;
+        margin: auto;
+      }
+      
+      .wideButton {
+        width: 100%;
+        margin-bottom: 4px;
+      }
+      
+      #betButton {
+        width: 75px;
+      }
     </style>
   </head>
-  
   <body>
     
-    <div class="playerPanel">
-      <h1 id="curPlayerName">Player Name</h1>
-      <p id="potTotal">Pot: 0</p>
-      <p id="potPerPlayer">Per Player: 0</p>
-      <button type="button" onclick="check()">Check</button>
-      <button type="button" onclick="raise()">Raise</button>
-      <button type="button" onclick="fold()">Fold</button>
+    <div id="header">
+      <h1 id="roundDisplay" class="headerDisplay">Round: 0</h1>
+      <h1 id="potDisplay" class="headerDisplay">Pot: 0</h1>
     </div>
+    
+    <div id="playerPanel">
+      <h1 id="nameDisplay">Player: Nobody</h1>
+      <div class="buttonContainer">
+        <button type="button" class="wideButton" id="checkButton" onclick="check()">Check £0</button>
+        <div class="wideButton">
+          <button type="button" onclick="lowerBet()">&#60;</button>
+          <button type="button" id="betButton" onclick="bet()">Bet £0</button>
+          <button type="button" onclick="raiseBet()">&#62;</button>
+        </div>
+        <button type="button" class="wideButton" onclick="fold()">Fold</button>
+      </div>
+    </div>
+    
+    <p id="potPPDisplay">Per Player: 0</p>
     
     <script src="output.js"></script>
   </body>
