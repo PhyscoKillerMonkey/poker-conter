@@ -14,6 +14,7 @@ var curPlayers = players;
 // DOM elements
 var page = {
     roundDisplay: document.getElementById("roundDisplay"),
+    phaseDisplay: document.getElementById("phaseDisplay"),
     playerName: document.getElementById("nameDisplay"),
     potTotal: document.getElementById("potDisplay"),
     playerPot: document.getElementById("potPPDisplay"),
@@ -41,6 +42,7 @@ var Player = (function () {
 }());
 function updateDisplay() {
     page.roundDisplay.innerHTML = "Round: " + round;
+    page.phaseDisplay.innerHTML = "Phase: " + phase;
     page.playerName.innerHTML = players[currentPlayer].name;
     page.potTotal.innerHTML = "Pot: £" + potTotal;
     page.playerPot.innerHTML = "Per Player: £" + potPerPlayer;
@@ -82,16 +84,6 @@ function raise() {
     currentPlayer++;
     doStuff();
 }
-// function raise() {
-//     console.log("Player raised");
-//     let p = players[nextPlayer];
-//     potPerPlayer++;
-//     p.pay(potPerPlayer - p.inCurrentPot);
-//     playersReady = 1;
-//     nextPlayer++;
-//     if (nextPlayer >= curPlayers.length) {nextPlayer = 0}
-//     doStuff();
-// }
 function fold() {
     console.log("Player folded");
     curPlayers.splice(currentPlayer);
@@ -110,6 +102,10 @@ function newRound() {
     players[firstPlayer].pay(bigBlind / 2);
     players[firstPlayer + 1].pay(bigBlind);
     potPerPlayer = bigBlind;
+    currentPlayer = firstPlayer + 2;
+    if (currentPlayer > curPlayers.length - 1) {
+        currentPlayer = 0;
+    }
     doStuff();
 }
 function doStuff() {
@@ -126,6 +122,8 @@ function doStuff() {
         raiseAmount = 1;
         phase++;
         if (phase == 4) {
+            // Game finished!
+            console.log("Game is finished!");
         }
         else if (phase < 4) {
             doStuff();

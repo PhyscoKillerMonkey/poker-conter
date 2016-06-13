@@ -16,6 +16,7 @@ let curPlayers = players;
 // DOM elements
 let page = {
   roundDisplay: document.getElementById("roundDisplay"),
+  phaseDisplay: document.getElementById("phaseDisplay"),
   playerName: document.getElementById("nameDisplay"),
   potTotal: document.getElementById("potDisplay"),
   playerPot: document.getElementById("potPPDisplay"),
@@ -51,6 +52,7 @@ class Player {
 
 function updateDisplay() {
   page.roundDisplay.innerHTML = "Round: " + round;
+  page.phaseDisplay.innerHTML = "Phase: " + phase;
   page.playerName.innerHTML = players[currentPlayer].name;
   page.potTotal.innerHTML = "Pot: £" + potTotal;
   page.playerPot.innerHTML = "Per Player: £" + potPerPlayer;
@@ -120,6 +122,11 @@ function newRound() {
   players[firstPlayer].pay(bigBlind / 2);
   players[firstPlayer + 1].pay(bigBlind);
   potPerPlayer = bigBlind;
+  currentPlayer = firstPlayer + 2;
+
+  if (currentPlayer > curPlayers.length - 1) {
+    currentPlayer = 0;
+  }
 
   doStuff();
 }
