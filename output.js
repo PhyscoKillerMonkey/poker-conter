@@ -20,7 +20,8 @@ var page = {
     playerPot: document.getElementById("potPPDisplay"),
     checkButton: document.getElementById("checkButton"),
     betButton: document.getElementById("betButton"),
-    leaderboard: document.getElementById("leaderboard")
+    leaderboard: document.getElementById("leaderboard"),
+    winButtonsInner: document.getElementById("winButtonsInner")
 };
 /**
  * Player
@@ -153,19 +154,36 @@ function doStuff() {
         raiseAmount = 1;
         phase++;
         if (phase == 4) {
-            // Game finished!
             console.log("Game is finished!");
+            page.winButtonsInner.innerHTML = "";
+            var _loop_1 = function(p) {
+                if (!p.folded) {
+                    var button = document.createElement("button");
+                    button.innerHTML = p.name;
+                    button.onclick = function () { winner(p); };
+                    page.winButtonsInner.appendChild(button);
+                }
+            };
+            for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
+                var p = players_3[_i];
+                _loop_1(p);
+            }
         }
         else if (phase < 4) {
             doStuff();
         }
     }
 }
+function winner(player) {
+    player.money += potTotal;
+    potTotal = 0;
+    newRound();
+    page.winButtonsInner.innerHTML = "";
+}
 window.onload = function () {
     console.log("Hello world!");
     players.push(new Player("Reece", startMoney));
     players.push(new Player("Laura", startMoney));
-    players.push(new Player("Rando", startMoney));
     newRound();
 };
 //# sourceMappingURL=output.js.map

@@ -22,7 +22,8 @@ let page = {
   playerPot: document.getElementById("potPPDisplay"),
   checkButton: document.getElementById("checkButton"),
   betButton: document.getElementById("betButton"),
-  leaderboard: document.getElementById("leaderboard")
+  leaderboard: document.getElementById("leaderboard"),
+  winButtonsInner: document.getElementById("winButtonsInner")
 }
 
 /**
@@ -60,7 +61,7 @@ function updateDisplay() {
   page.playerPot.innerHTML = "Per Player: £" + potPerPlayer;
   page.betButton.innerHTML = "Raise £" + raiseAmount;
 
-  var betDifference = potPerPlayer - players[currentPlayer].inCurrentPot;
+  let betDifference = potPerPlayer - players[currentPlayer].inCurrentPot;
   if (betDifference == 0) {
     page.checkButton.innerHTML = "Check";
   } else {
@@ -70,7 +71,7 @@ function updateDisplay() {
   page.leaderboard.innerHTML = "";
   console.log(players);
   for (let p of players) {
-    var line = document.createElement("p");
+    let line = document.createElement("p");
     if (p.folded) {
       line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>"; 
     } else {
@@ -175,18 +176,32 @@ function doStuff() {
     raiseAmount = 1;
     phase++;
     if (phase == 4) {
-      // Game finished!
       console.log("Game is finished!");
+      page.winButtonsInner.innerHTML = "";
+      for (let p of players) {
+        if (!p.folded) {
+          let button = document.createElement("button");
+          button.innerHTML = p.name;
+          button.onclick = function() { winner(p); };
+          page.winButtonsInner.appendChild(button);
+        }
+      }
     } else if (phase < 4) {
       doStuff();
     }
   }
 }
 
+function winner(player: Player) {
+  player.money += potTotal;
+  potTotal = 0;
+  newRound();
+  page.winButtonsInner.innerHTML = "";
+}
+
 window.onload = function () {
   console.log("Hello world!");
   players.push(new Player("Reece", startMoney));
   players.push(new Player("Laura", startMoney));
-  players.push(new Player("Rando", startMoney));
   newRound();
 }
