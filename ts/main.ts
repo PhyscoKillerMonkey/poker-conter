@@ -11,7 +11,7 @@ let potTotal = 0;
 let potPerPlayer = 0;
 let currentPlayer = 0;
 let playersReady = 0;
-let curPlayers = players;
+let playersFolded = 0;
 
 // DOM elements
 let page = {
@@ -21,7 +21,8 @@ let page = {
   potTotal: document.getElementById("potDisplay"),
   playerPot: document.getElementById("potPPDisplay"),
   checkButton: document.getElementById("checkButton"),
-  betButton: document.getElementById("betButton")
+  betButton: document.getElementById("betButton"),
+  leaderboard: document.getElementById("leaderboard")
 }
 
 /**
@@ -32,6 +33,7 @@ class Player {
   name: string;
   money: number;
   inCurrentPot: number;
+  folded: boolean;
 
   constructor(name: string, money: number) {
     this.name = name;
@@ -64,6 +66,30 @@ function updateDisplay() {
   } else {
     page.checkButton.innerHTML = "Call £" + betDifference;
   }
+
+  page.leaderboard.innerHTML = "";
+  console.log(players);
+  for (let p of players) {
+    var line = document.createElement("p");
+    if (p.folded) {
+      line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>"; 
+    } else {
+      line.innerHTML = p.name + " £" + p.money;
+    }
+    page.leaderboard.appendChild(line);
+  }
+}
+
+function nextPlayer() {
+  currentPlayer++;
+  if (currentPlayer >= players.length) { currentPlayer = 0; }
+  while (players[currentPlayer].folded) {
+    if (currentPlayer < players.length - 1) { 
+      currentPlayer++; 
+    } else {
+      currentPlayer = 0;
+    }
+  }
 }
 
 function check() {
@@ -73,8 +99,7 @@ function check() {
   p.pay(potPerPlayer - p.inCurrentPot);
 
   playersReady++;
-  currentPlayer++;
-  if (currentPlayer >= curPlayers.length) { currentPlayer = 0 }
+  nextPlayer();
   doStuff();
 }
 
@@ -97,13 +122,15 @@ function raise() {
   p.pay(potPerPlayer - p.inCurrentPot);
   
   playersReady = 1;
-  currentPlayer++;
+  nextPlayer();
   doStuff();
 }
 
 function fold() {
   console.log("Player folded");
-  curPlayers.splice(currentPlayer);
+  players[currentPlayer].folded = true;
+  nextPlayer();
+  playersFolded++;
   doStuff();
 }
 
@@ -114,8 +141,12 @@ function newRound() {
   // Reset variables
   phase = 0;
   currentPlayer = 0;
-  playersReady = 0;
-  curPlayers = players;
+  playersReady = 1;
+  playersFolded = 0;
+
+  for (let p of players) {
+    p.folded = false;
+  }
 
   // Make players pay big-blind and little-blind
   let firstPlayer = round % players.length - 1;
@@ -124,7 +155,7 @@ function newRound() {
   potPerPlayer = bigBlind;
   currentPlayer = firstPlayer + 2;
 
-  if (currentPlayer > curPlayers.length - 1) {
+  if (currentPlayer > players.length - 1) {
     currentPlayer = 0;
   }
 
@@ -133,9 +164,9 @@ function newRound() {
 
 function doStuff() {
   console.log("Phase " + phase);
-  if (playersReady < curPlayers.length) {
+  updateDisplay();
+  if (playersReady < players.length - playersFolded) {
     raiseAmount = 1;
-    updateDisplay();
     console.log("Player " + currentPlayer + "'s turn.")
   } else {
     // We are going into the next phase
