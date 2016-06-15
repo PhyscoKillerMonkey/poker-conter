@@ -69,11 +69,10 @@ function updateDisplay() {
   }
 
   page.leaderboard.innerHTML = "";
-  console.log(players);
   for (let p of players) {
     let line = document.createElement("p");
     if (p.folded) {
-      line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>"; 
+      line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>";
     } else {
       line.innerHTML = p.name + " £" + p.money;
     }
@@ -82,14 +81,16 @@ function updateDisplay() {
 }
 
 function nextPlayer() {
+  console.log("Player " + currentPlayer);
   currentPlayer++;
-  if (currentPlayer >= players.length) { currentPlayer = 0; }
-  while (players[currentPlayer].folded) {
-    if (currentPlayer < players.length - 1) { 
-      currentPlayer++; 
-    } else {
-      currentPlayer = 0;
-    }
+  console.log("Player " + currentPlayer);
+  if (currentPlayer >= players.length) {
+    currentPlayer = 0;
+    console.log("Out of range, choosing player 0");
+  }
+  if (players[currentPlayer].folded) {
+    console.log("Player is folded, choosing next");
+    nextPlayer();
   }
 }
 
@@ -121,7 +122,7 @@ function raise() {
 
   let p = players[currentPlayer];
   p.pay(potPerPlayer - p.inCurrentPot);
-  
+
   playersReady = 1;
   nextPlayer();
   doStuff();
@@ -147,12 +148,17 @@ function newRound() {
 
   for (let p of players) {
     p.folded = false;
+    p.inCurrentPot = 0;
   }
 
   // Make players pay big-blind and little-blind
-  let firstPlayer = round % players.length - 1;
+  let firstPlayer = (round % players.length);
   players[firstPlayer].pay(bigBlind / 2);
-  players[firstPlayer + 1].pay(bigBlind);
+  if (firstPlayer == players.length - 1) {
+    players[0].pay(bigBlind);
+  } else {
+    players[firstPlayer + 1].pay(bigBlind);
+  }
   potPerPlayer = bigBlind;
   currentPlayer = firstPlayer + 2;
 
@@ -164,9 +170,13 @@ function newRound() {
 }
 
 function doStuff() {
-  console.log("Phase " + phase);
+  console.log("Doing stuff on phase " + phase);
   updateDisplay();
-  if (playersReady < players.length - playersFolded) {
+  console.log(playersReady + " " + (players.length - playersFolded));
+  if (players.length - playersFolded == 1) {
+    // There is only one player left in the game
+    winner(players[currentPlayer]);
+  } else if (playersReady < players.length - playersFolded) {
     raiseAmount = 1;
     console.log("Player " + currentPlayer + "'s turn.")
   } else {
@@ -176,18 +186,22 @@ function doStuff() {
     raiseAmount = 1;
     phase++;
     if (phase == 4) {
-      console.log("Game is finished!");
-      page.winButtonsInner.innerHTML = "";
-      for (let p of players) {
-        if (!p.folded) {
-          let button = document.createElement("button");
-          button.innerHTML = p.name;
-          button.onclick = function() { winner(p); };
-          page.winButtonsInner.appendChild(button);
-        }
-      }
+      finishRound();
     } else if (phase < 4) {
       doStuff();
+    }
+  }
+}
+
+function finishRound() {
+  console.log("Game is finished!");
+  page.winButtonsInner.innerHTML = "";
+  for (let p of players) {
+    if (!p.folded) {
+      let button = document.createElement("button");
+      button.innerHTML = p.name;
+      button.onclick = function () { winner(p); };
+      page.winButtonsInner.appendChild(button);
     }
   }
 }

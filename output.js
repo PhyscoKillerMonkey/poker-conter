@@ -57,7 +57,6 @@ function updateDisplay() {
         page.checkButton.innerHTML = "Call £" + betDifference;
     }
     page.leaderboard.innerHTML = "";
-    console.log(players);
     for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
         var p = players_1[_i];
         var line = document.createElement("p");
@@ -71,17 +70,16 @@ function updateDisplay() {
     }
 }
 function nextPlayer() {
+    console.log("Player " + currentPlayer);
     currentPlayer++;
+    console.log("Player " + currentPlayer);
     if (currentPlayer >= players.length) {
         currentPlayer = 0;
+        console.log("Out of range, choosing player 0");
     }
-    while (players[currentPlayer].folded) {
-        if (currentPlayer < players.length - 1) {
-            currentPlayer++;
-        }
-        else {
-            currentPlayer = 0;
-        }
+    if (players[currentPlayer].folded) {
+        console.log("Player is folded, choosing next");
+        nextPlayer();
     }
 }
 function check() {
@@ -128,11 +126,17 @@ function newRound() {
     for (var _i = 0, players_2 = players; _i < players_2.length; _i++) {
         var p = players_2[_i];
         p.folded = false;
+        p.inCurrentPot = 0;
     }
     // Make players pay big-blind and little-blind
-    var firstPlayer = round % players.length - 1;
+    var firstPlayer = (round % players.length);
     players[firstPlayer].pay(bigBlind / 2);
-    players[firstPlayer + 1].pay(bigBlind);
+    if (firstPlayer == players.length - 1) {
+        players[0].pay(bigBlind);
+    }
+    else {
+        players[firstPlayer + 1].pay(bigBlind);
+    }
     potPerPlayer = bigBlind;
     currentPlayer = firstPlayer + 2;
     if (currentPlayer > players.length - 1) {
@@ -141,9 +145,14 @@ function newRound() {
     doStuff();
 }
 function doStuff() {
-    console.log("Phase " + phase);
+    console.log("Doing stuff on phase " + phase);
     updateDisplay();
-    if (playersReady < players.length - playersFolded) {
+    console.log(playersReady + " " + (players.length - playersFolded));
+    if (players.length - playersFolded == 1) {
+        // There is only one player left in the game
+        winner(players[currentPlayer]);
+    }
+    else if (playersReady < players.length - playersFolded) {
         raiseAmount = 1;
         console.log("Player " + currentPlayer + "'s turn.");
     }
@@ -154,24 +163,27 @@ function doStuff() {
         raiseAmount = 1;
         phase++;
         if (phase == 4) {
-            console.log("Game is finished!");
-            page.winButtonsInner.innerHTML = "";
-            var _loop_1 = function(p) {
-                if (!p.folded) {
-                    var button = document.createElement("button");
-                    button.innerHTML = p.name;
-                    button.onclick = function () { winner(p); };
-                    page.winButtonsInner.appendChild(button);
-                }
-            };
-            for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
-                var p = players_3[_i];
-                _loop_1(p);
-            }
+            finishRound();
         }
         else if (phase < 4) {
             doStuff();
         }
+    }
+}
+function finishRound() {
+    console.log("Game is finished!");
+    page.winButtonsInner.innerHTML = "";
+    var _loop_1 = function(p) {
+        if (!p.folded) {
+            var button = document.createElement("button");
+            button.innerHTML = p.name;
+            button.onclick = function () { winner(p); };
+            page.winButtonsInner.appendChild(button);
+        }
+    };
+    for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
+        var p = players_3[_i];
+        _loop_1(p);
     }
 }
 function winner(player) {
