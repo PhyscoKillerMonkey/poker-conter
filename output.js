@@ -118,6 +118,7 @@ function fold() {
 function newRound() {
     // We are in the next round
     round++;
+    console.log("Round " + round);
     // Reset variables
     phase = 0;
     currentPlayer = 0;
@@ -129,7 +130,8 @@ function newRound() {
         p.inCurrentPot = 0;
     }
     // Make players pay big-blind and little-blind
-    var firstPlayer = (round % players.length);
+    var firstPlayer = ((round - 1) % players.length);
+    console.log("First player is " + firstPlayer);
     players[firstPlayer].pay(bigBlind / 2);
     if (firstPlayer == players.length - 1) {
         players[0].pay(bigBlind);
@@ -139,7 +141,10 @@ function newRound() {
     }
     potPerPlayer = bigBlind;
     currentPlayer = firstPlayer + 2;
-    if (currentPlayer > players.length - 1) {
+    if (currentPlayer == players.length + 1) {
+        currentPlayer = 1;
+    }
+    else if (currentPlayer == players.length) {
         currentPlayer = 0;
     }
     doStuff();
