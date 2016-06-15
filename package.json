@@ -1,0 +1,17 @@
+{
+  "name": "poker-counter",
+  "description": "A virtual set of poker chips",
+  "author": "Reece Bennett",
+  "version": "0.0.1",
+  "main": "pathToMain",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PhyscoKillerMonkey/poker-counter"
+  },
+  "scripts": {
+    "start": "node bin/server.js"
+  },
+  "dependencies": {
+    "express": "^4.13.4"
+  }
+}
