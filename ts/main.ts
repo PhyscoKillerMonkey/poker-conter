@@ -1,9 +1,9 @@
 // Global variables
-let players: Player[] = [];
 let startMoney = 100;
 let bigBlind = 4;
 
 // Game variables
+let players: Player[] = [];
 let round = 0;
 let phase = 0;
 let raiseAmount = 1;
@@ -46,10 +46,6 @@ class Player {
     this.money -= amount;
     this.inCurrentPot += amount;
     potTotal += amount;
-  }
-
-  choose() {
-    console.log(this.name + " choose check, raise or fold");
   }
 }
 
@@ -139,11 +135,9 @@ function fold() {
 function newRound() {
   // We are in the next round
   round++;
-  console.log("Round " + round);
 
   // Reset variables
   phase = 0;
-  currentPlayer = 0;
   playersReady = 1;
   playersFolded = 0;
 
@@ -162,8 +156,9 @@ function newRound() {
     players[firstPlayer + 1].pay(bigBlind);
   }
   potPerPlayer = bigBlind;
-  currentPlayer = firstPlayer + 2;
 
+  // Start play from person to left of big-blind
+  currentPlayer = firstPlayer + 2;
   if (currentPlayer == players.length + 1) {
     currentPlayer = 1;
   } else if (currentPlayer == players.length) {

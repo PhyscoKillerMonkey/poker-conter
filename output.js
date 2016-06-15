@@ -1,8 +1,8 @@
 // Global variables
-var players = [];
 var startMoney = 100;
 var bigBlind = 4;
 // Game variables
+var players = [];
 var round = 0;
 var phase = 0;
 var raiseAmount = 1;
@@ -36,9 +36,6 @@ var Player = (function () {
         this.money -= amount;
         this.inCurrentPot += amount;
         potTotal += amount;
-    };
-    Player.prototype.choose = function () {
-        console.log(this.name + " choose check, raise or fold");
     };
     return Player;
 }());
@@ -118,10 +115,8 @@ function fold() {
 function newRound() {
     // We are in the next round
     round++;
-    console.log("Round " + round);
     // Reset variables
     phase = 0;
-    currentPlayer = 0;
     playersReady = 1;
     playersFolded = 0;
     for (var _i = 0, players_2 = players; _i < players_2.length; _i++) {
@@ -140,6 +135,7 @@ function newRound() {
         players[firstPlayer + 1].pay(bigBlind);
     }
     potPerPlayer = bigBlind;
+    // Start play from person to left of big-blind
     currentPlayer = firstPlayer + 2;
     if (currentPlayer == players.length + 1) {
         currentPlayer = 1;
