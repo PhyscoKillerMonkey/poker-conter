@@ -199,4 +199,4 @@ window.onload = function () {
     players.push(new Player("Laura", startMoney));
     newRound();
 };
-//# sourceMappingURL=main.js.map
+//# sourceMappingURL=client.js.map

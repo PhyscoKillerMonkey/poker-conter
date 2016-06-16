@@ -1,3 +1,4 @@
+/// <reference path="../../typings/index.d.ts" />
 "use strict";
 var express = require("express");
 var app = express();

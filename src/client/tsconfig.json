@@ -1,0 +1,9 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es5",
+    "outFile": "../../public/client.js",
+    "sourceMap": true
+  }
+}

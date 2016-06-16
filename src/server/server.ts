@@ -1,3 +1,5 @@
+/// <reference path="../../typings/index.d.ts" />
+
 import express = require("express");
 let app = express();
 import http = require("http");
@@ -21,8 +23,8 @@ app.get("/", function(req, res) {
 
 io.on("connection", function(socket) {
   console.log("A user connected");
-})
+});
 
 server.listen(3000, function() {
   console.log("Listening on port 3000");
-})
+});
