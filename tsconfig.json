@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "module": "commonjs",
-        "outDir": "bin",
+        "outDir": ".",
         "watch": true,
         "sourceMap": true
     },
