@@ -66,11 +66,6 @@ Temporary Items
 .Trash-*
 
 
-### Typings ###
-## Ignore downloaded typings
-typings
-
-
 ### VisualStudioCode ###
 .vscode
 
