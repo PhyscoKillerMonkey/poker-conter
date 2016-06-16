@@ -1,6 +1,10 @@
 "use strict";
 var express = require("express");
 var app = express();
+var http = require("http");
+var server = http.createServer(app);
+var socketio = require("socket.io");
+var io = socketio(server);
 app.use(express.static("public"));
 app.get("/", function (req, res) {
     var filename = "index.html";
@@ -14,7 +18,10 @@ app.get("/", function (req, res) {
         }
     });
 });
-app.listen(3000, function () {
+io.on("connection", function (socket) {
+    console.log("A user connected");
+});
+server.listen(3000, function () {
     console.log("Listening on port 3000");
 });
 //# sourceMappingURL=server.js.map

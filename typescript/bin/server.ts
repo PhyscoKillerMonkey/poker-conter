@@ -1,5 +1,9 @@
 import express = require("express");
-var app = express();
+let app = express();
+import http = require("http");
+let server = http.createServer(app);
+import socketio = require("socket.io");
+let io = socketio(server);
 
 app.use(express.static("public"));
 
@@ -15,6 +19,10 @@ app.get("/", function(req, res) {
   });
 });
 
-app.listen(3000, function() {
+io.on("connection", function(socket) {
+  console.log("A user connected");
+})
+
+server.listen(3000, function() {
   console.log("Listening on port 3000");
-});
+})
