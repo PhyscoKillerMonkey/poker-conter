@@ -77,6 +77,7 @@ server.listen(3000, function () {
     console.log("Listening on port 3000");
 });
 function updateClients() {
+    console.log("Current P: " + currentPlayer);
     io.emit("update", new updateObject());
 }
 // Object to pass to the clients when the game state changes
@@ -96,7 +97,7 @@ var updateObject = (function () {
 /*          Poker Game Code          */
 /*************************************/
 var startingMoney = 100, bigBlind = 4;
-var players = [], currentPlayer = 0, dealer = 0, potTotal = 0, potPP = 0, round = 0, phase = 0;
+var players = [], currentPlayer = 0, dealer = -1, potTotal = 0, potPP = 0, round = 0, phase = 0;
 var Player = (function () {
     function Player(name, id, money) {
         this.name = name;
@@ -112,7 +113,7 @@ var Player = (function () {
         potTotal += amount;
     };
     Player.prototype.ready = function () {
-        if (this.played && this.inCurrentPot == potPP) {
+        if (this.folded || (this.played && this.inCurrentPot == potPP)) {
             return true;
         }
         else if (this.inCurrentPot > potPP) {
@@ -157,9 +158,9 @@ function folded() {
 }
 function check() {
     var p = players[currentPlayer];
-    console.log(potPP - p.inCurrentPot);
     p.pay(potPP - p.inCurrentPot);
     p.played = true;
+    nextPlayer();
     doTurn();
 }
 function raise(amount) {
@@ -167,10 +168,12 @@ function raise(amount) {
     var p = players[currentPlayer];
     p.pay(potPP - p.inCurrentPot);
     p.played = true;
+    nextPlayer();
     doTurn();
 }
 function fold() {
     players[currentPlayer].folded = true;
+    nextPlayer();
     doTurn();
 }
 function newRound() {
@@ -196,7 +199,8 @@ function newRound() {
     nextPlayer();
     console.log(players[currentPlayer].name + " is BB");
     players[currentPlayer].pay(bigBlind);
-    console.log(players[currentPlayer + 1].name + " is UTG");
+    nextPlayer();
+    console.log(players[currentPlayer].name + " is UTG");
     doTurn();
 }
 function doTurn() {
@@ -211,16 +215,15 @@ function doTurn() {
         // Go into the next phase
         console.log("Everybody is ready, going into the next phase");
         phase++;
-        currentPlayer = -1;
+        currentPlayer = dealer;
         for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
             var p = players_4[_i];
             p.played = false;
         }
-        nextPlayer();
         doTurn();
     }
     else {
-        nextPlayer();
+        updateClients();
         console.log("Current Player: " + currentPlayer);
         console.log("Player " + players[currentPlayer].name + " has to choose");
     }

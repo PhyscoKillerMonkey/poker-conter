@@ -41,24 +41,38 @@ function submitName() {
   userName = page.nameField.value;
 }
 
+function updateDisplay(data?: updateObject) {
+  if (data) {
+    page.roundDisplay.innerHTML = "Round: " + data.round;
+    page.phaseDisplay.innerHTML = "Phase: " + data.phase;
+    page.potTotal.innerHTML = "Pot: £" + data.potTotal;
+    page.playerPot.innerHTML = "Per player: £" + data.potPP;
+    
+    let betDifference = data.potPP - data.players[data.currentPlayer].inCurrentPot;
+    if (betDifference == 0) {
+      page.checkButton.innerHTML = "Check";
+    } else {
+      page.checkButton.innerHTML = "Call £" + betDifference;
+    }
+
+    page.leaderboard.innerHTML = "";
+    for (let p of data.players) {
+      let line = document.createElement("p");
+      if (p.folded) {
+        line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>";
+      } else {
+        line.innerHTML = p.name + " £" + p.money;
+      }
+      page.leaderboard.appendChild(line);
+    }
+  }
+  page.raiseButton.innerHTML = "Raise £" + raiseAmount; 
+}
+
 socket.on("update", function(data: updateObject) {
   console.log(data);
   console.log("We are " + socket.id);
-  page.roundDisplay.innerHTML = "Round: " + data.round;
-  page.phaseDisplay.innerHTML = "Phase: " + data.phase;
-  page.potTotal.innerHTML = "Pot: £" + data.potTotal;
-  page.playerPot.innerHTML = "Per player: £" + data.potPP;
-
-  page.leaderboard.innerHTML = "";
-  for (let p of data.players) {
-    let line = document.createElement("p");
-    if (p.folded) {
-      line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>";
-    } else {
-      line.innerHTML = p.name + " £" + p.money;
-    }
-    page.leaderboard.appendChild(line);
-  }
+  updateDisplay(data);
 });
 
 // For testing, probably don't want this
@@ -79,12 +93,12 @@ function lowerRaise() {
   if (raiseAmount >= 0) {
     raiseAmount = 1;
   }
-  page.raiseButton.innerHTML = "Raise £" + raiseAmount;
+  updateDisplay();
 }
 
 function increaseRaise() {
   raiseAmount++;
-  page.raiseButton.innerHTML = "Raise £" + raiseAmount;
+  updateDisplay();
 }
 
 function raise() {

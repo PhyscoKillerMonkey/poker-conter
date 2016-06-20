@@ -83,6 +83,7 @@ server.listen(3000, function() {
 });
 
 function updateClients() {
+  console.log("Current P: " + currentPlayer);
   io.emit("update", new updateObject());
 }
 
@@ -118,7 +119,7 @@ let startingMoney = 100,
 
 let players: Player[] = [],
   currentPlayer = 0,
-  dealer = 0,
+  dealer = -1,
   potTotal = 0,
   potPP = 0,
   round = 0,
@@ -148,7 +149,7 @@ class Player {
   }
 
   ready(): boolean {
-    if (this.played && this.inCurrentPot == potPP) {
+    if (this.folded || (this.played && this.inCurrentPot == potPP)) {
       return true
     } else if (this.inCurrentPot > potPP) {
       console.error("Player " + this.name + " has more money in pot than total...");
@@ -192,9 +193,9 @@ function folded(): number {
 
 function check() {
   let p = players[currentPlayer];
-  console.log(potPP - p.inCurrentPot);
   p.pay(potPP - p.inCurrentPot);
   p.played = true;
+  nextPlayer();
   doTurn();
 }
 
@@ -203,11 +204,13 @@ function raise(amount: number) {
   let p = players[currentPlayer];
   p.pay(potPP - p.inCurrentPot);
   p.played = true;
+  nextPlayer();
   doTurn();
 }
 
 function fold() {
   players[currentPlayer].folded = true;
+  nextPlayer();
   doTurn();
 }
 
@@ -236,6 +239,7 @@ function newRound() {
   console.log(players[currentPlayer].name + " is BB");
   players[currentPlayer].pay(bigBlind);
   console.log(players[currentPlayer+1].name + " is UTG");
+  nextPlayer();
 
   doTurn();
 }
@@ -250,16 +254,14 @@ function doTurn() {
     // Go into the next phase
     console.log("Everybody is ready, going into the next phase");
     phase++;
-    currentPlayer = -1;
+    currentPlayer = dealer;
 
     for (let p of players) {
       p.played = false;
     }
-
-    nextPlayer();
     doTurn();
   } else {
-    nextPlayer();
+    updateClients();
     console.log("Current Player: " + currentPlayer);
     console.log("Player " + players[currentPlayer].name + " has to choose");
   }

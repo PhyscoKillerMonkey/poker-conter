@@ -29,25 +29,38 @@ function submitName() {
     socket.emit("join", page.nameField.value);
     userName = page.nameField.value;
 }
+function updateDisplay(data) {
+    if (data) {
+        page.roundDisplay.innerHTML = "Round: " + data.round;
+        page.phaseDisplay.innerHTML = "Phase: " + data.phase;
+        page.potTotal.innerHTML = "Pot: £" + data.potTotal;
+        page.playerPot.innerHTML = "Per player: £" + data.potPP;
+        var betDifference = data.potPP - data.players[data.currentPlayer].inCurrentPot;
+        if (betDifference == 0) {
+            page.checkButton.innerHTML = "Check";
+        }
+        else {
+            page.checkButton.innerHTML = "Call £" + betDifference;
+        }
+        page.leaderboard.innerHTML = "";
+        for (var _i = 0, _a = data.players; _i < _a.length; _i++) {
+            var p = _a[_i];
+            var line = document.createElement("p");
+            if (p.folded) {
+                line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>";
+            }
+            else {
+                line.innerHTML = p.name + " £" + p.money;
+            }
+            page.leaderboard.appendChild(line);
+        }
+    }
+    page.raiseButton.innerHTML = "Raise £" + raiseAmount;
+}
 socket.on("update", function (data) {
     console.log(data);
     console.log("We are " + socket.id);
-    page.roundDisplay.innerHTML = "Round: " + data.round;
-    page.phaseDisplay.innerHTML = "Phase: " + data.phase;
-    page.potTotal.innerHTML = "Pot: £" + data.potTotal;
-    page.playerPot.innerHTML = "Per player: £" + data.potPP;
-    page.leaderboard.innerHTML = "";
-    for (var _i = 0, _a = data.players; _i < _a.length; _i++) {
-        var p = _a[_i];
-        var line = document.createElement("p");
-        if (p.folded) {
-            line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>";
-        }
-        else {
-            line.innerHTML = p.name + " £" + p.money;
-        }
-        page.leaderboard.appendChild(line);
-    }
+    updateDisplay(data);
 });
 // For testing, probably don't want this
 socket.on("reconnect", function () {
@@ -64,11 +77,11 @@ function lowerRaise() {
     if (raiseAmount >= 0) {
         raiseAmount = 1;
     }
-    page.raiseButton.innerHTML = "Raise £" + raiseAmount;
+    updateDisplay();
 }
 function increaseRaise() {
     raiseAmount++;
-    page.raiseButton.innerHTML = "Raise £" + raiseAmount;
+    updateDisplay();
 }
 function raise() {
     socket.emit("raise", raiseAmount);
