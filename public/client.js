@@ -1,5 +1,6 @@
 /// <reference path="../../typings/index.d.ts" />
 var socket = io();
+socket.emit("join", "Username");
 // Global variables
 var startMoney = 100;
 var bigBlind = 4;
