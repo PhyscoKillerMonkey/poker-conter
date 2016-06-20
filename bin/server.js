@@ -27,11 +27,7 @@ io.on("connection", function (socket) {
         console.log("User " + name + " joined, ID: " + socket.id);
         me = new Player(name, socket.id);
         players.push(me);
-        console.log(me.money);
-        console.log(players);
-        me.money = 200;
-        console.log(me.money);
-        console.log(players);
+        socket.emit("update", new updateObject());
     });
     socket.on("disconnect", function () {
         console.log(socket.id + " disconnected");
@@ -40,6 +36,22 @@ io.on("connection", function (socket) {
 server.listen(3000, function () {
     console.log("Listening on port 3000");
 });
+function updateClients() {
+    io.emit("update", new updateObject());
+}
+// Object to pass to the clients when the game state changes
+var updateObject = (function () {
+    function updateObject() {
+        this.players = players;
+        this.currentPlayer = currentPlayer;
+        this.dealer = dealer;
+        this.potTotal = potTotal;
+        this.potPP = potPP;
+        this.round = round;
+        this.phase = phase;
+    }
+    return updateObject;
+}());
 /*************************************/
 /*          Poker Game Code          */
 /*************************************/

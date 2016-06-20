@@ -5,5 +5,8 @@
     "target": "es5",
     "outFile": "../../public/client.js",
     "sourceMap": true
-  }
+  },
+  "exclude": [
+    "main.ts"
+  ]
 }
