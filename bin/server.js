@@ -36,6 +36,9 @@ io.on("connection", function (socket) {
         me = new Player(name, socket.id);
         players.push(me);
         updateClients();
+        if (players.length > 2) {
+            newRound();
+        }
     });
     socket.on("check", function () {
         if (myTurn()) {
@@ -101,6 +104,7 @@ var Player = (function () {
         this.money = money || startingMoney;
         this.inCurrentPot = 0;
         this.folded = false;
+        this.played = false;
     }
     Player.prototype.pay = function (amount) {
         this.money -= amount;
@@ -108,22 +112,26 @@ var Player = (function () {
         potTotal += amount;
     };
     Player.prototype.ready = function () {
-        if (this.inCurrentPot == potPP) {
+        if (this.played && this.inCurrentPot == potPP) {
             return true;
         }
         else if (this.inCurrentPot > potPP) {
-            console.error("Player " + name + " has more money in pot than total...");
+            console.error("Player " + this.name + " has more money in pot than total...");
         }
-        return false;
+        else {
+            return false;
+        }
     };
     return Player;
 }());
 function nextPlayer() {
     currentPlayer++;
     if (currentPlayer >= players.length) {
+        console.log("Out of bounds with " + currentPlayer);
         currentPlayer = 0;
     }
     if (players[currentPlayer].folded) {
+        console.log(currentPlayer + " folded, skipping");
         nextPlayer();
     }
 }
@@ -131,7 +139,7 @@ function nextPlayer() {
 function allReady() {
     for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
         var p = players_1[_i];
-        if (!p.ready) {
+        if (!p.ready()) {
             return false;
         }
     }
@@ -149,41 +157,46 @@ function folded() {
 }
 function check() {
     var p = players[currentPlayer];
+    console.log(potPP - p.inCurrentPot);
     p.pay(potPP - p.inCurrentPot);
-    nextPlayer();
+    p.played = true;
     doTurn();
 }
 function raise(amount) {
     potPP += amount;
     var p = players[currentPlayer];
     p.pay(potPP - p.inCurrentPot);
-    nextPlayer();
+    p.played = true;
     doTurn();
 }
 function fold() {
     players[currentPlayer].folded = true;
-    nextPlayer();
     doTurn();
 }
 function newRound() {
     round++;
     phase = 0;
     potTotal = 0;
-    potPP = 0;
+    potPP = bigBlind;
     for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
         var p = players_3[_i];
         p.folded = false;
         p.inCurrentPot = 0;
+        p.played = false;
     }
     // Make the dealer one more, then the player one more than him
+    console.log("Dealer was " + dealer);
     currentPlayer = dealer;
     nextPlayer();
     dealer = currentPlayer;
+    console.log("Dealer is " + dealer);
     nextPlayer();
+    console.log(players[currentPlayer].name + " is SB");
     players[currentPlayer].pay(bigBlind / 2);
     nextPlayer();
+    console.log(players[currentPlayer].name + " is BB");
     players[currentPlayer].pay(bigBlind);
-    nextPlayer();
+    console.log(players[currentPlayer + 1].name + " is UTG");
     doTurn();
 }
 function doTurn() {
@@ -196,13 +209,19 @@ function doTurn() {
     }
     else if (allReady()) {
         // Go into the next phase
+        console.log("Everybody is ready, going into the next phase");
         phase++;
         currentPlayer = -1;
+        for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
+            var p = players_4[_i];
+            p.played = false;
+        }
         nextPlayer();
         doTurn();
     }
     else {
         nextPlayer();
+        console.log("Current Player: " + currentPlayer);
         console.log("Player " + players[currentPlayer].name + " has to choose");
     }
 }

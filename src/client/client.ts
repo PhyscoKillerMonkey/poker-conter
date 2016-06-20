@@ -27,16 +27,18 @@ let page = {
   potTotal: document.getElementById("potDisplay"),
   playerPot: document.getElementById("potPPDisplay"),
   checkButton: document.getElementById("checkButton"),
-  betButton: document.getElementById("betButton"),
+  raiseButton: document.getElementById("betButton"),
   leaderboard: document.getElementById("leaderboard"),
   winButtonsInner: document.getElementById("winButtonsInner"),
   nameField: <HTMLInputElement>document.getElementById("name")
 }
 
-var socket = io();
+let socket = io();
+let userName = "";
 
 function submitName() {
   socket.emit("join", page.nameField.value);
+  userName = page.nameField.value;
 }
 
 socket.on("update", function(data: updateObject) {
@@ -45,6 +47,7 @@ socket.on("update", function(data: updateObject) {
   page.roundDisplay.innerHTML = "Round: " + data.round;
   page.phaseDisplay.innerHTML = "Phase: " + data.phase;
   page.potTotal.innerHTML = "Pot: £" + data.potTotal;
+  page.playerPot.innerHTML = "Per player: £" + data.potPP;
 
   page.leaderboard.innerHTML = "";
   for (let p of data.players) {
@@ -60,7 +63,9 @@ socket.on("update", function(data: updateObject) {
 
 // For testing, probably don't want this
 socket.on("reconnect", function() {
-  socket.emit("join", "Username");
+  if (userName != "") {
+    socket.emit("join", userName);
+  }
 });
 
 let raiseAmount = 1;
@@ -74,10 +79,12 @@ function lowerRaise() {
   if (raiseAmount >= 0) {
     raiseAmount = 1;
   }
+  page.raiseButton.innerHTML = "Raise £" + raiseAmount;
 }
 
 function increaseRaise() {
   raiseAmount++;
+  page.raiseButton.innerHTML = "Raise £" + raiseAmount;
 }
 
 function raise() {
