@@ -29,15 +29,19 @@ let page = {
   checkButton: document.getElementById("checkButton"),
   betButton: document.getElementById("betButton"),
   leaderboard: document.getElementById("leaderboard"),
-  winButtonsInner: document.getElementById("winButtonsInner")
+  winButtonsInner: document.getElementById("winButtonsInner"),
+  nameField: <HTMLInputElement>document.getElementById("name")
 }
 
 var socket = io();
 
-socket.emit("join", "Username");
+function submitName() {
+  socket.emit("join", page.nameField.value);
+}
 
 socket.on("update", function(data: updateObject) {
   console.log(data);
+  console.log("We are " + socket.id);
   page.roundDisplay.innerHTML = "Round: " + data.round;
   page.phaseDisplay.innerHTML = "Phase: " + data.phase;
   page.potTotal.innerHTML = "Pot: £" + data.potTotal;
@@ -58,3 +62,28 @@ socket.on("update", function(data: updateObject) {
 socket.on("reconnect", function() {
   socket.emit("join", "Username");
 });
+
+let raiseAmount = 1;
+
+function check() {
+  socket.emit("check");
+}
+
+function lowerRaise() {
+  raiseAmount--;
+  if (raiseAmount >= 0) {
+    raiseAmount = 1;
+  }
+}
+
+function increaseRaise() {
+  raiseAmount++;
+}
+
+function raise() {
+  socket.emit("raise", raiseAmount);
+}
+
+function fold() {
+  socket.emit("fold");
+}

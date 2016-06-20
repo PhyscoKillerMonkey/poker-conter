@@ -23,14 +23,51 @@ app.get("/", function (req, res) {
 io.on("connection", function (socket) {
     var me;
     console.log(socket.id + " connected");
+    function myTurn() {
+        if (players[currentPlayer] == me) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
     socket.on("join", function (name) {
-        console.log("User " + name + " joined, ID: " + socket.id);
+        console.log(name + " joined, ID: " + socket.id);
         me = new Player(name, socket.id);
         players.push(me);
-        socket.emit("update", new updateObject());
+        updateClients();
+    });
+    socket.on("check", function () {
+        if (myTurn()) {
+            console.log(me.name + " checked");
+            check();
+        }
+        else {
+            console.log("Not " + me.name + "'s turn");
+        }
+    });
+    socket.on("raise", function (amount) {
+        if (myTurn()) {
+            console.log(me.name + " raised £" + amount);
+            raise(amount);
+        }
+        else {
+            console.log("Not " + me.name + "'s turn");
+        }
+    });
+    socket.on("fold", function () {
+        if (myTurn()) {
+            console.log(me.name + " folded");
+            fold();
+        }
+        else {
+            console.log("Not " + me.name + "'s turn");
+        }
     });
     socket.on("disconnect", function () {
         console.log(socket.id + " disconnected");
+        players.splice(players.indexOf(me));
+        updateClients();
     });
 });
 server.listen(3000, function () {
@@ -90,6 +127,7 @@ function nextPlayer() {
         nextPlayer();
     }
 }
+// Problem may be caused when someone is folded
 function allReady() {
     for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
         var p = players_1[_i];
@@ -108,6 +146,24 @@ function folded() {
         }
     }
     return f;
+}
+function check() {
+    var p = players[currentPlayer];
+    p.pay(potPP - p.inCurrentPot);
+    nextPlayer();
+    doTurn();
+}
+function raise(amount) {
+    potPP += amount;
+    var p = players[currentPlayer];
+    p.pay(potPP - p.inCurrentPot);
+    nextPlayer();
+    doTurn();
+}
+function fold() {
+    players[currentPlayer].folded = true;
+    nextPlayer();
+    doTurn();
 }
 function newRound() {
     round++;
@@ -131,6 +187,7 @@ function newRound() {
     doTurn();
 }
 function doTurn() {
+    updateClients();
     if (folded() == players.length - 1) {
         console.log("Only one player left");
     }

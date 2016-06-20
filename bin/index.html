@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1"</meta>
     <title>Poker Chip Counter</title>
     
     <style>
@@ -32,6 +33,13 @@
     </style>
   </head>
   <body>
+    <div id="loginContainer">
+      <form id="loginForm" action="javascript:submitName()">
+        <p id="loginFormLabel">Choose a name:</p>
+        <input id="name" autocomplete="off" autofocus>
+        <button>Sumbit</button>
+      </form>
+    </div>
     
     <div id="header">
       <h1 id="roundDisplay" class="headerDisplay">Round: 0</h1>
