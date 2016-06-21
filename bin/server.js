@@ -36,9 +36,9 @@ io.on("connection", function (socket) {
         me = new Player(name, socket.id);
         players.push(me);
         updateClients();
-        if (players.length > 2) {
-            newRound();
-        }
+    });
+    socket.on("startGame", function () {
+        newRound();
     });
     socket.on("check", function () {
         if (myTurn()) {
@@ -67,6 +67,9 @@ io.on("connection", function (socket) {
             console.log("Not " + me.name + "'s turn");
         }
     });
+    socket.on("winnerIs", function (player) {
+        winnerIs(player);
+    });
     socket.on("disconnect", function () {
         console.log(socket.id + " disconnected");
         players.splice(players.indexOf(me));
@@ -77,8 +80,10 @@ server.listen(3000, function () {
     console.log("Listening on port 3000");
 });
 function updateClients() {
-    console.log("Current P: " + currentPlayer);
     io.emit("update", new updateObject());
+}
+function clientMessage(player, msg) {
+    io.to(player.id).emit(msg);
 }
 // Object to pass to the clients when the game state changes
 var updateObject = (function () {
@@ -128,11 +133,11 @@ var Player = (function () {
 function nextPlayer() {
     currentPlayer++;
     if (currentPlayer >= players.length) {
-        console.log("Out of bounds with " + currentPlayer);
+        // console.log("Out of bounds with " + currentPlayer);
         currentPlayer = 0;
     }
     if (players[currentPlayer].folded) {
-        console.log(currentPlayer + " folded, skipping");
+        // console.log(currentPlayer + " folded, skipping");
         nextPlayer();
     }
 }
@@ -188,44 +193,53 @@ function newRound() {
         p.played = false;
     }
     // Make the dealer one more, then the player one more than him
-    console.log("Dealer was " + dealer);
     currentPlayer = dealer;
     nextPlayer();
     dealer = currentPlayer;
-    console.log("Dealer is " + dealer);
+    console.log(players[dealer].name + " is dealer");
     nextPlayer();
     console.log(players[currentPlayer].name + " is SB");
     players[currentPlayer].pay(bigBlind / 2);
     nextPlayer();
     console.log(players[currentPlayer].name + " is BB");
     players[currentPlayer].pay(bigBlind);
+    console.log(players[currentPlayer + 1].name + " is UTG");
     nextPlayer();
-    console.log(players[currentPlayer].name + " is UTG");
     doTurn();
 }
 function doTurn() {
     updateClients();
     if (folded() == players.length - 1) {
         console.log("Only one player left");
+        // Find the remaining player and make them the winner
+        for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
+            var p = players_4[_i];
+            if (!p.folded) {
+                winnerIs(p);
+            }
+        }
     }
     else if (phase == 4) {
-        console.log("The game has ended, choose a winner");
+        console.log("The game has ended, " + players[0] + " is choosing a winner");
+        clientMessage(players[0], "chooseWinner");
     }
     else if (allReady()) {
         // Go into the next phase
         console.log("Everybody is ready, going into the next phase");
         phase++;
         currentPlayer = dealer;
-        for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
-            var p = players_4[_i];
+        for (var _a = 0, players_5 = players; _a < players_5.length; _a++) {
+            var p = players_5[_a];
             p.played = false;
         }
         doTurn();
     }
     else {
         updateClients();
-        console.log("Current Player: " + currentPlayer);
         console.log("Player " + players[currentPlayer].name + " has to choose");
+        clientMessage(players[currentPlayer], "choose");
     }
+}
+function winnerIs(player) {
 }
 //# sourceMappingURL=server.js.map

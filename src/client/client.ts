@@ -41,6 +41,35 @@ function submitName() {
   userName = page.nameField.value;
 }
 
+function startGame() {
+  socket.emit("startGame");
+}
+
+function winnerIs(player: Player) {
+  socket.emit("winnerIs", player);
+}
+
+socket.on("update", function(data: updateObject) {
+  console.log(data);
+  console.log("We are " + socket.id);
+  updateDisplay(data);
+});
+
+socket.on("choose", function() {
+  console.log("Time to choose");
+});
+
+socket.on("chooseWinner", function() {
+  console.log("Time to choose the winner");
+})
+
+// For testing, probably don't want this
+socket.on("reconnect", function() {
+  if (userName != "") {
+    socket.emit("join", userName);
+  }
+});
+
 function updateDisplay(data?: updateObject) {
   if (data) {
     page.roundDisplay.innerHTML = "Round: " + data.round;
@@ -69,19 +98,6 @@ function updateDisplay(data?: updateObject) {
   page.raiseButton.innerHTML = "Raise £" + raiseAmount; 
 }
 
-socket.on("update", function(data: updateObject) {
-  console.log(data);
-  console.log("We are " + socket.id);
-  updateDisplay(data);
-});
-
-// For testing, probably don't want this
-socket.on("reconnect", function() {
-  if (userName != "") {
-    socket.emit("join", userName);
-  }
-});
-
 let raiseAmount = 1;
 
 function check() {
@@ -90,7 +106,7 @@ function check() {
 
 function lowerRaise() {
   raiseAmount--;
-  if (raiseAmount >= 0) {
+  if (raiseAmount <= 0) {
     raiseAmount = 1;
   }
   updateDisplay();
