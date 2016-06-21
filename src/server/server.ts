@@ -282,5 +282,7 @@ function doTurn() {
 }
 
 function winnerIs(player: Player) {
-
+  console.log("Winner is " + player.name);
+  player.money += potTotal;
+  newRound();
 }

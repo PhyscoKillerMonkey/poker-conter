@@ -1,6 +1,9 @@
 ### BrowserSync ###
 BrowserSync.bat
 
+## Typescript Map Files ###
+*.js.map
+
 # Created by https://www.gitignore.io/api/windows,osx,linux,typings,visualstudiocode
 
 ### Windows ###

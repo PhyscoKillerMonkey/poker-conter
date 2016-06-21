@@ -14,7 +14,7 @@ var Player = (function () {
 var page = {
     roundDisplay: document.getElementById("roundDisplay"),
     phaseDisplay: document.getElementById("phaseDisplay"),
-    playerName: document.getElementById("nameDisplay"),
+    nameDisplay: document.getElementById("nameDisplay"),
     potTotal: document.getElementById("potDisplay"),
     playerPot: document.getElementById("potPPDisplay"),
     checkButton: document.getElementById("checkButton"),
@@ -58,6 +58,13 @@ function updateDisplay(data) {
         page.phaseDisplay.innerHTML = "Phase: " + data.phase;
         page.potTotal.innerHTML = "Pot: £" + data.potTotal;
         page.playerPot.innerHTML = "Per player: £" + data.potPP;
+        var pName = data.players[data.currentPlayer].name;
+        if (pName == userName) {
+            page.nameDisplay.innerHTML = "Your turn";
+        }
+        else {
+            page.nameDisplay.innerHTML = pName + "'s turn";
+        }
         var betDifference = data.potPP - data.players[data.currentPlayer].inCurrentPot;
         if (betDifference == 0) {
             page.checkButton.innerHTML = "Check";

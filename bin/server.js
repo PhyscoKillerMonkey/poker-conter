@@ -241,5 +241,8 @@ function doTurn() {
     }
 }
 function winnerIs(player) {
+    console.log("Winner is " + player.name);
+    player.money += potTotal;
+    newRound();
 }
 //# sourceMappingURL=server.js.map
