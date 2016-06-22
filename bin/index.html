@@ -1,81 +1,41 @@
 <html>
   <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"</meta>
     <title>Poker Chip Counter</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
     
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-      
-      .headerDisplay {
-        display: inline;
-        margin-right: 20px;
-      }
-      
-      #playerPanel {
-        width: max-content;
-      }
-      
-      .buttonContainer {
-        width: 132px;
-        margin: auto;
-      }
-      
-      .wideButton {
-        width: 100%;
-        margin-bottom: 4px;
-      }
-      
-      #betButton {
-        width: 75px;
-      }
-    </style>
   </head>
   <body>
-    <div id="loginContainer">
-      <form id="loginForm" action="javascript:submitName()">
-        <p id="loginFormLabel">Choose a name:</p>
-        <input id="name" autocomplete="off" autofocus>
-        <button>Sumbit</button>
-      </form>
+    <div id="container">
+      <header id="header">
+        <p id="roundDisplay">Round: <b>0</b></p>
+        <p id="moneyDisplay">Money: <b>0</b></p>
+      </header>
+
+      <main id="main">
+        <p>Player 1: £10</p>
+        <P>Player 2: £20</P>
+      </main>
+
+      <footer id="footer">
+        <button id="checkButton" class="button">Check</button>
+        <button id="raiseButton" class="button">Raise</button>
+        <button id="foldButton" class="button">Fold</button>
+      </footer>
     </div>
 
-    <button type="button" onclick="startGame()">Start Game</button>
-    
-    <div id="header">
-      <h1 id="roundDisplay" class="headerDisplay">Round: 0</h1>
-      <h1 id="phaseDisplay" class="headerDisplay">Phase: 0</h1>
-      <h1 id="potDisplay" class="headerDisplay">Pot: 0</h1>
-    </div>
-    
-    <div id="playerPanel">
-      <h1 id="nameDisplay"></h1>
-      <div class="buttonContainer">
-        <button type="button" class="wideButton" id="checkButton" onclick="check()">Check £0</button>
-        <div class="wideButton">
-          <button type="button" onclick="lowerRaise()">&#60;</button>
-          <button type="button" id="betButton" onclick="raise()">Raise £0</button>
-          <button type="button" onclick="increaseRaise()">&#62;</button>
-        </div>
-        <button type="button" class="wideButton" onclick="fold()">Fold</button>
+    <div id="chips" hidden>
+        <button class="button">1</button>
+        <button class="button">5</button>
+        <button class="button">10</button>
+        <button class="button">25</button>
+        <button class="button">50</button>
+        <p id="raiseAmount">0</p>
+        <button class="button">Bet!</button>
       </div>
-    </div>
     
-    <p id="potPPDisplay">Per Player: 0</p>
-
-    <div id="leaderboard">
-      <p>Reece: £90</p>
-      <p>Laura: £80</p>
-    </div>
-
-    <div id="winButtons">
-      <h2>Who won?</h2>
-      <div id="winButtonsInner">
-      </div>
-    </div>
-    
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>
+    <!--<script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>-->
   </body>
 </html>

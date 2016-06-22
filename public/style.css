@@ -1,0 +1,80 @@
+html, body {
+  font-family: sans-serif;
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.button {
+  padding: 0.4rem;
+  background: #FAFAFA;
+  border: 1px solid #BDBDBD;
+  border-radius: 5px;
+  outline: none;
+  font-size: 1rem;
+}
+
+.button:hover {
+  background: #E0E0E0;
+}
+
+.button:active {
+  box-shadow: 1px 1px 10px -2px #757575 inset;
+}
+
+.blur {
+  -webkit-filter: blur(5px);
+  -moz-filter: blur(5px);
+  -o-filter: blur(5px);
+  -ms-filter: blur(5px);
+  filter: blur(5px);
+}
+
+#container {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+#header {
+  background: #03A9F4;
+  color: #ffffff;
+  padding: 0.4rem;
+  vertical-align: middle;
+}
+
+#header p {
+  display: inline;
+  margin: 0px;
+  margin-right: 10px;
+  font-size: 1.1rem;
+}
+
+#main {
+  padding: 20px;
+}
+
+#chips {
+  padding: 20px;
+  background: #F5F5F5;
+  width: max-content;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+#chips p {
+  display: inline;
+  margin: 0 5px;
+  font-weight: bold;
+}
+
+#footer {
+  padding: 0.8rem;
+  background: #00BCD4;
+  width: 100%;
+  bottom: 0px;
+  position: absolute;
+}
