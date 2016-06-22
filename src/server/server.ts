@@ -35,14 +35,22 @@ io.on("connection", function(socket) {
   }
 
   socket.on("join", function(name: string) {
-    console.log(name + " joined, ID: " + socket.id);
-    me = new Player(name, socket.id);
-    players.push(me);
-    updateClients();
+    if (me == undefined) {
+      console.log(name + " joined, ID: " + socket.id);
+      me = new Player(name, socket.id);
+      players.push(me);
+      updateClients();
+    } else {
+      console.log("ID: " + socket.id + " tried to connect twice");
+    }
   });
 
   socket.on("startGame", function() {
-    newRound();
+    if (players.length >= 2) {
+      newRound();
+    } else {
+      console.log("Not enough players to start");
+    }
   });
 
   socket.on("check", function() {
@@ -79,6 +87,7 @@ io.on("connection", function(socket) {
   socket.on("disconnect", function() {
     console.log(socket.id + " disconnected");
     players.splice(players.indexOf(me));
+    me = undefined;
     updateClients();
   });
 });
