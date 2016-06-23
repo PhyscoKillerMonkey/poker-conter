@@ -223,8 +223,8 @@ function newRound() {
     nextPlayer();
     console.log(players[currentPlayer].name + " is BB");
     players[currentPlayer].pay(bigBlind);
-    console.log(players[currentPlayer + 1].name + " is UTG");
     nextPlayer();
+    console.log(players[currentPlayer].name + " is UTG");
     doTurn();
 }
 function doTurn() {
@@ -245,8 +245,8 @@ function doTurn() {
     }
     else if (allReady()) {
         // Go into the next phase
-        console.log("Everybody is ready, going into the next phase");
         phase++;
+        console.log("Everybody is ready, going into phase " + phase);
         currentPlayer = dealer;
         for (var _a = 0, players_6 = players; _a < players_6.length; _a++) {
             var p = players_6[_a];

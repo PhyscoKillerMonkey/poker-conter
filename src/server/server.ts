@@ -262,8 +262,8 @@ function newRound() {
   nextPlayer();
   console.log(players[currentPlayer].name + " is BB");
   players[currentPlayer].pay(bigBlind);
-  console.log(players[currentPlayer+1].name + " is UTG");
   nextPlayer();
+  console.log(players[currentPlayer].name + " is UTG");
 
   doTurn();
 }
@@ -283,8 +283,8 @@ function doTurn() {
     clientMessage(players[0], "chooseWinner");
   } else if (allReady()) {
     // Go into the next phase
-    console.log("Everybody is ready, going into the next phase");
     phase++;
+    console.log("Everybody is ready, going into phase " + phase);
     currentPlayer = dealer;
 
     for (let p of players) {
