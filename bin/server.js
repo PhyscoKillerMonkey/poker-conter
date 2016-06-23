@@ -240,7 +240,7 @@ function doTurn() {
         }
     }
     else if (phase == 4) {
-        console.log("The game has ended, " + players[0] + " is choosing a winner");
+        console.log("The game has ended, " + players[0].name + " is choosing a winner");
         clientMessage(players[0], "chooseWinner");
     }
     else if (allReady()) {
