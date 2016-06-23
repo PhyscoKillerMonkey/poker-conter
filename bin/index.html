@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"</meta>
     <title>Poker Chip Counter</title>
     <link rel="stylesheet" type="text/css" href="style.css">
-    
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic' rel='stylesheet' type='text/css'>
   </head>
   <body>
     <div id="container" class="blur">
@@ -15,15 +15,15 @@
       </header>
 
       <main id="leaderboard">
-        <p>Player 1: 10</p>
-        <P>Player 2: 20</P>
+        <p>Player 1: <b>10</b></p>
+        <P>Player 2: <b>20</b></P>
       </main>
 
       <footer id="footer">
-        <button id="checkButton" class="button" onclick="check()">Check</button>
-        <button id="raiseButton" class="button">Raise</button>
-        <button class="button" oncllick="fold()">Fold</button>
         <button class="button" onclick="startGame()">Start</button>
+        <button id="checkButton" class="button" onclick="check()">Check</button>
+        <button id="raiseButton" class="button" onclick="raise()">Raise</button>
+        <button class="button" oncllick="fold()">Fold</button>
       </footer>
     </div>
 
@@ -40,9 +40,9 @@
 
     <div id="loginContainer" class="center">
       <form action="javascript:submitName()">
-        <p id="loginText">Please choose a name:</p>
-        <input id="nameInput" autocomplete="off" autofocus>
-        <button>Sumbit</button>
+        <label for="nameInput" id="loginText">Please choose a name:</p>
+        <input id="nameInput" autocomplete="off" placeholder="Enter a name" autofocus required>
+        <button class="">Sumbit</button>
       </form>
     </div>
     

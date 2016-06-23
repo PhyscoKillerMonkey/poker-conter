@@ -107,7 +107,10 @@ function updateDisplay(data?: updateObject) {
         line.innerHTML = p.name + ": <b>" + p.money + "</b>";
       }
       if (data.players[data.currentPlayer] == p) {
-        line.innerHTML += " <b>&#8592</b>";
+        line.innerHTML = "<u>" + line.innerHTML + "</u>";
+      }
+      if (p.inCurrentPot > 0) {
+        line.innerHTML += " &#10132; " + p.inCurrentPot;
       }
       page.leaderboard.appendChild(line);
     }
