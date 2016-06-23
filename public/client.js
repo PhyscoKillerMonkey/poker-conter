@@ -22,7 +22,8 @@ var page = {
     raiseDisplay: document.getElementById("raiseDisplay"),
     loginContainer: document.getElementById("loginContainer"),
     loginText: document.getElementById("loginText"),
-    nameInput: document.getElementById("nameInput")
+    nameInput: document.getElementById("nameInput"),
+    cards: document.getElementById("cardContainer")
 };
 var socket = io();
 var userName = "";
@@ -94,6 +95,24 @@ function updateDisplay(data) {
                 line.innerHTML += " &#10132; " + p.inCurrentPot;
             }
             page.leaderboard.appendChild(line);
+        }
+        switch (data.phase) {
+            case 0:
+                page.cards.children[0].classList.remove("filled");
+                page.cards.children[1].classList.remove("filled");
+                page.cards.children[2].classList.remove("filled");
+                page.cards.children[3].classList.remove("filled");
+                page.cards.children[4].classList.remove("filled");
+                break;
+            case 3:
+                page.cards.children[4].classList.add("filled");
+            case 2:
+                page.cards.children[3].classList.add("filled");
+            case 1:
+                page.cards.children[0].classList.add("filled");
+                page.cards.children[1].classList.add("filled");
+                page.cards.children[2].classList.add("filled");
+                break;
         }
     }
     page.raiseDisplay.innerHTML = raiseAmount.toString();
