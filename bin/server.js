@@ -32,14 +32,23 @@ io.on("connection", function (socket) {
         }
     }
     socket.on("join", function (name) {
-        if (me == undefined) {
+        var taken = false;
+        for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
+            var p = players_1[_i];
+            if (p.name == name) {
+                taken = true;
+            }
+        }
+        if (me == undefined && !taken) {
             console.log(name + " joined, ID: " + socket.id);
             me = new Player(name, socket.id);
             players.push(me);
             updateClients();
+            socket.emit("nameAvaliable");
         }
         else {
-            console.log("ID: " + socket.id + " tried to connect twice");
+            console.log("Name: " + name + ", not avaliable");
+            socket.emit("nameTaken");
         }
     });
     socket.on("startGame", function () {
@@ -154,8 +163,8 @@ function nextPlayer() {
 }
 // Problem may be caused when someone is folded
 function allReady() {
-    for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
-        var p = players_1[_i];
+    for (var _i = 0, players_2 = players; _i < players_2.length; _i++) {
+        var p = players_2[_i];
         if (!p.ready()) {
             return false;
         }
@@ -164,8 +173,8 @@ function allReady() {
 }
 function folded() {
     var f = 0;
-    for (var _i = 0, players_2 = players; _i < players_2.length; _i++) {
-        var p = players_2[_i];
+    for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
+        var p = players_3[_i];
         if (p.folded) {
             f++;
         }
@@ -197,8 +206,8 @@ function newRound() {
     phase = 0;
     potTotal = 0;
     potPP = bigBlind;
-    for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
-        var p = players_3[_i];
+    for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
+        var p = players_4[_i];
         p.folded = false;
         p.inCurrentPot = 0;
         p.played = false;
@@ -223,8 +232,8 @@ function doTurn() {
     if (folded() == players.length - 1) {
         console.log("Only one player left");
         // Find the remaining player and make them the winner
-        for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
-            var p = players_4[_i];
+        for (var _i = 0, players_5 = players; _i < players_5.length; _i++) {
+            var p = players_5[_i];
             if (!p.folded) {
                 winnerIs(p);
             }
@@ -239,8 +248,8 @@ function doTurn() {
         console.log("Everybody is ready, going into the next phase");
         phase++;
         currentPlayer = dealer;
-        for (var _a = 0, players_5 = players; _a < players_5.length; _a++) {
-            var p = players_5[_a];
+        for (var _a = 0, players_6 = players; _a < players_6.length; _a++) {
+            var p = players_6[_a];
             p.played = false;
         }
         doTurn();

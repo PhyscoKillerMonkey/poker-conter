@@ -31,6 +31,13 @@ html, body {
   filter: blur(5px);
 }
 
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 #container {
   height: 100%;
   position: relative;
@@ -51,24 +58,8 @@ html, body {
   font-size: 1.1rem;
 }
 
-#main {
+#leaderBoard {
   padding: 20px;
-}
-
-#chips {
-  padding: 20px;
-  background: #F5F5F5;
-  width: max-content;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-#chips p {
-  display: inline;
-  margin: 0 5px;
-  font-weight: bold;
 }
 
 #footer {
@@ -77,4 +68,21 @@ html, body {
   width: 100%;
   bottom: 0px;
   position: absolute;
+}
+
+#chips {
+  padding: 20px;
+  background: #F5F5F5;
+  width: max-content;
+}
+
+#chips p {
+  display: inline;
+  margin: 0 5px;
+  font-weight: bold;
+}
+
+#loginContainer {
+  padding: 20px;
+  background: #F5F5F5;
 }

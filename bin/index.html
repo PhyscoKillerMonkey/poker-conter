@@ -7,35 +7,46 @@
     
   </head>
   <body>
-    <div id="container">
+    <div id="container" class="blur">
       <header id="header">
         <p id="roundDisplay">Round: <b>0</b></p>
+        <p id="potDisplay">Pot: <b>0</b></p>
         <p id="moneyDisplay">Money: <b>0</b></p>
       </header>
 
-      <main id="main">
-        <p>Player 1: £10</p>
-        <P>Player 2: £20</P>
+      <main id="leaderboard">
+        <p>Player 1: 10</p>
+        <P>Player 2: 20</P>
       </main>
 
       <footer id="footer">
-        <button id="checkButton" class="button">Check</button>
+        <button id="checkButton" class="button" onclick="check()">Check</button>
         <button id="raiseButton" class="button">Raise</button>
-        <button id="foldButton" class="button">Fold</button>
+        <button class="button" oncllick="fold()">Fold</button>
+        <button class="button" onclick="startGame()">Start</button>
       </footer>
     </div>
 
-    <div id="chips" hidden>
-        <button class="button">1</button>
-        <button class="button">5</button>
-        <button class="button">10</button>
-        <button class="button">25</button>
-        <button class="button">50</button>
-        <p id="raiseAmount">0</p>
-        <button class="button">Bet!</button>
-      </div>
+    <div id="chipsContainer" class="center" hidden>
+      <button class="button" onclick="changeRaise(1);">1</button>
+      <button class="button" onclick="changeRaise(5);">5</button>
+      <button class="button" onclick="changeRaise(10);">10</button>
+      <button class="button" onclick="changeRaise(25);">25</button>
+      <button class="button" onclick="changeRaise(50);">50</button>
+      <p id="raiseDisplay">0</p>
+      <button class="button">Bet</button>
+      <button class="button">X</button>
+    </div>
+
+    <div id="loginContainer" class="center">
+      <form action="javascript:submitName()">
+        <p id="loginText">Please choose a name:</p>
+        <input id="nameInput" autocomplete="off" autofocus>
+        <button>Sumbit</button>
+      </form>
+    </div>
     
-    <!--<script src="/socket.io/socket.io.js"></script>
-    <script src="client.js"></script>-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="client.js"></script>
   </body>
 </html>

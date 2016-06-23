@@ -21,32 +21,39 @@ class Player {
 
 // DOM elements
 let page = {
+  container: document.getElementById("container"),
   roundDisplay: document.getElementById("roundDisplay"),
-  phaseDisplay: document.getElementById("phaseDisplay"),
-  nameDisplay: document.getElementById("nameDisplay"),
-  potTotal: document.getElementById("potDisplay"),
-  playerPot: document.getElementById("potPPDisplay"),
-  checkButton: document.getElementById("checkButton"),
-  raiseButton: document.getElementById("betButton"),
+  potDisplay: document.getElementById("potDisplay"),
+  moneyDisplay: document.getElementById("moneyDisplay"),
   leaderboard: document.getElementById("leaderboard"),
-  winButtonsInner: document.getElementById("winButtonsInner"),
-  nameField: <HTMLInputElement>document.getElementById("name")
+  checkButton: document.getElementById("checkButton"),
+  chipsContainer: document.getElementById("chipsContainer"),
+  raiseDisplay: document.getElementById("raiseDisplay"),
+  loginContainer: document.getElementById("loginContainer"),
+  loginText: document.getElementById("loginText"),
+  nameInput: <HTMLInputElement>document.getElementById("nameInput")
 }
 
 let socket = io();
 let userName = "";
 
 function submitName() {
-  socket.emit("join", page.nameField.value);
-  userName = page.nameField.value;
+  socket.emit("join", page.nameInput.value);
+  userName = page.nameInput.value;
 }
+
+socket.on("nameAvaliable", function() {
+  console.log("Name was accepted");
+  page.loginContainer.hidden = true;
+  page.container.classList.remove("blur");
+});
+
+socket.on("nameTaken", function() {
+  page.loginText.innerHTML = "Name is already taken, please choose another:"
+})
 
 function startGame() {
   socket.emit("startGame");
-}
-
-function winnerIs(player: Player) {
-  socket.emit("winnerIs", player);
 }
 
 socket.on("update", function(data: updateObject) {
@@ -61,7 +68,11 @@ socket.on("choose", function() {
 
 socket.on("chooseWinner", function() {
   console.log("Time to choose the winner");
-})
+});
+
+function winnerIs(player: Player) {
+  socket.emit("winnerIs", player);
+}
 
 // For testing, probably don't want this
 socket.on("reconnect", function() {
@@ -72,62 +83,60 @@ socket.on("reconnect", function() {
 
 function updateDisplay(data?: updateObject) {
   if (data) {
-    page.roundDisplay.innerHTML = "Round: " + data.round;
-    page.phaseDisplay.innerHTML = "Phase: " + data.phase;
-    page.potTotal.innerHTML = "Pot: £" + data.potTotal;
-    page.playerPot.innerHTML = "Per player: £" + data.potPP;
+    page.roundDisplay.innerHTML = "Round: <b>" + data.round + "</b>";
+    page.potDisplay.innerHTML = "Pot: <b>" + data.potTotal + "</b>";
 
     let pName = data.players[data.currentPlayer].name;
-    if (pName == userName) {
-      page.nameDisplay.innerHTML = "Your turn";
-    } else {
-      page.nameDisplay.innerHTML = pName + "'s turn";
-    }
-    
     let betDifference = data.potPP - data.players[data.currentPlayer].inCurrentPot;
-    if (betDifference == 0) {
-      page.checkButton.innerHTML = "Check";
+    if (betDifference != 0 && pName == userName) {
+      page.checkButton.innerHTML = "Call " + betDifference;
     } else {
-      page.checkButton.innerHTML = "Call £" + betDifference;
+      page.checkButton.innerHTML = "Check";
     }
 
     page.leaderboard.innerHTML = "";
     for (let p of data.players) {
       let line = document.createElement("p");
+      if (p.name == userName) {
+        p.name = "Me";
+        page.moneyDisplay.innerHTML = "Money: <b>" + p.money + "</b>";
+      }
       if (p.folded) {
-        line.innerHTML = "<s>" + p.name + " £" + p.money + "</s>";
+        line.innerHTML = "<s>" + p.name + ": <b>" + p.money + "</b></s>";
       } else {
-        line.innerHTML = p.name + " £" + p.money;
+        line.innerHTML = p.name + ": <b>" + p.money + "</b>";
+      }
+      if (data.players[data.currentPlayer] == p) {
+        line.innerHTML += " <b>&#8592</b>";
       }
       page.leaderboard.appendChild(line);
     }
   }
-  page.raiseButton.innerHTML = "Raise £" + raiseAmount; 
+
+  page.raiseDisplay.innerHTML = raiseAmount.toString(); 
 }
 
 let raiseAmount = 1;
 
 function check() {
+  console.log("Check");
   socket.emit("check");
 }
 
-function lowerRaise() {
-  raiseAmount--;
+function changeRaise(amount: number) {
+  raiseAmount += amount;
   if (raiseAmount <= 0) {
     raiseAmount = 1;
   }
   updateDisplay();
 }
 
-function increaseRaise() {
-  raiseAmount++;
-  updateDisplay();
-}
-
 function raise() {
+  console.log("Raise " + raiseAmount);
   socket.emit("raise", raiseAmount);
 }
 
 function fold() {
+  console.log("Fold");
   socket.emit("fold");
 }

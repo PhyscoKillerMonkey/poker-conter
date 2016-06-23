@@ -35,13 +35,21 @@ io.on("connection", function(socket) {
   }
 
   socket.on("join", function(name: string) {
-    if (me == undefined) {
+    let taken = false;
+    for (let p of players) {
+      if (p.name == name) {
+        taken = true;
+      }
+    }
+    if (me == undefined && !taken) {
       console.log(name + " joined, ID: " + socket.id);
       me = new Player(name, socket.id);
       players.push(me);
       updateClients();
+      socket.emit("nameAvaliable")
     } else {
-      console.log("ID: " + socket.id + " tried to connect twice");
+      console.log("Name: " + name + ", not avaliable");
+      socket.emit("nameTaken");
     }
   });
 
