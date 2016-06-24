@@ -27,8 +27,8 @@ let page = {
   moneyDisplay: document.getElementById("moneyDisplay"),
   leaderboard: document.getElementById("leaderboard"),
   checkButton: document.getElementById("checkButton"),
-  chipsContainer: document.getElementById("chipsContainer"),
-  raiseDisplay: document.getElementById("raiseDisplay"),
+  raiseContainer: document.getElementById("raiseContainer"),
+  raiseInput: <HTMLInputElement>document.getElementById("raiseInput"),
   loginContainer: document.getElementById("loginContainer"),
   loginText: document.getElementById("loginText"),
   nameInput: <HTMLInputElement>document.getElementById("nameInput"),
@@ -67,6 +67,7 @@ socket.on("update", function(data: updateObject) {
 
 socket.on("choose", function() {
   console.log("Time to choose");
+  // Enable buttons
 });
 
 socket.on("chooseWinner", function() {
@@ -149,8 +150,6 @@ function updateDisplay(data?: updateObject) {
         break;
     }
   }
-
-  page.raiseDisplay.innerHTML = raiseAmount.toString(); 
 }
 
 let raiseAmount = 1;
@@ -158,22 +157,38 @@ let raiseAmount = 1;
 function check() {
   console.log("Check");
   socket.emit("check");
+  // Disable buttons
 }
 
-function changeRaise(amount: number) {
-  raiseAmount += amount;
-  if (raiseAmount <= 0) {
-    raiseAmount = 1;
-  }
-  updateDisplay();
-}
+// function changeRaise(amount: number) {
+//   raiseAmount += amount;
+//   if (raiseAmount <= 0) {
+//     raiseAmount = 1;
+//   }
+//   updateDisplay();
+// }
 
 function raise() {
-  console.log("Raise " + raiseAmount);
-  socket.emit("raise", raiseAmount);
+  let r = page.raiseInput.value;
+  console.log("Raise " + r);
+  socket.emit("raise", parseInt(r));
+  hideRaiseContainer(true);
+  // Disable buttons
+}
+
+function hideRaiseContainer(hide: boolean) {
+  if (hide) {
+    page.raiseContainer.hidden = true;
+    page.container.classList.remove("blur");
+  } else {
+    page.raiseContainer.hidden = false;
+    page.container.classList.add("blur");
+    page.raiseInput.value = "1";
+  }
 }
 
 function fold() {
   console.log("Fold");
   socket.emit("fold");
+  // Disable buttons
 }

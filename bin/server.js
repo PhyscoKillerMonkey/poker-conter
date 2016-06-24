@@ -71,7 +71,7 @@ io.on("connection", function (socket) {
     socket.on("raise", function (amount) {
         if (myTurn()) {
             console.log(me.name + " raised £" + amount);
-            raise(amount);
+            raise(parseInt(amount));
         }
         else {
             console.log("Not " + me.name + "'s turn");
@@ -194,7 +194,10 @@ function check() {
     doTurn();
 }
 function raise(amount) {
+    console.log(potPP);
+    console.log(amount);
     potPP += amount;
+    console.log(potPP);
     var p = players[currentPlayer];
     p.pay(potPP - p.inCurrentPot);
     p.played = true;
@@ -233,7 +236,6 @@ function newRound() {
     doTurn();
 }
 function doTurn() {
-    updateClients();
     if (folded() == players.length - 1) {
         console.log("Only one player left");
         // Find the remaining player and make them the winner
@@ -246,6 +248,7 @@ function doTurn() {
     }
     else if (phase == 4) {
         console.log("The game has ended, " + players[0].name + " is choosing a winner");
+        updateClients();
         clientMessage(players[0], "chooseWinner");
     }
     else if (allReady()) {

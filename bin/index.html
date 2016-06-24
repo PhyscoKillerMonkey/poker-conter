@@ -30,27 +30,25 @@
       <footer id="footer">
         <button class="button" onclick="startGame()">Start</button>
         <button id="checkButton" class="button" onclick="check()">Check</button>
-        <button id="raiseButton" class="button" onclick="raise()">Raise</button>
+        <button id="raiseButton" class="button" onclick="hideRaiseContainer(false)">Raise</button>
         <button class="button" onclick="fold()">Fold</button>
       </footer>
     </div>
 
-    <div id="chipsContainer" class="center popup" hidden>
-      <button class="button" onclick="changeRaise(1);">1</button>
-      <button class="button" onclick="changeRaise(5);">5</button>
-      <button class="button" onclick="changeRaise(10);">10</button>
-      <button class="button" onclick="changeRaise(25);">25</button>
-      <button class="button" onclick="changeRaise(50);">50</button>
-      <p id="raiseDisplay">0</p>
-      <button class="button">Bet</button>
-      <button class="button">X</button>
-    </div>
-
     <div id="loginContainer" class="center popup">
-      <form action="javascript:submitName()">
+      <form action="javascript:submitName();">
         <label for="nameInput" id="loginText">Please choose a name:</p>
         <input id="nameInput" autocomplete="off" placeholder="Enter a name" autofocus required>
-        <button class="">Sumbit</button>
+        <button class="button" type="submit">Sumbit</button>
+      </form>
+    </div>
+
+    <div id="raiseContainer" class="center popup" hidden>
+      <form action="javascript:raise();">
+        <label for="raiseInput">How much would you like to raise?</label>
+        <input id="raiseInput" type="number" value="1" min="1" required>
+        <button class="button" type="submit">&#10004;</button>
+        <button class="button" onclick="hideRaiseContainer(true)">&#10006;</button>
       </form>
     </div>
 

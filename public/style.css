@@ -8,6 +8,7 @@ html, body {
 }
 
 .button {
+  cursor: pointer;
   padding: 0.6rem;
   background: #fff;
   color: #424242;
@@ -120,15 +121,22 @@ input {
   margin: 0 2.5px;
 }
 
-#chips p {
-  display: inline;
-  margin: 0 5px;
-  font-weight: bold;
-}
-
 .popup {
   padding: 20px;
   background: #fff;
   width: max-content;
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+
+#raiseContainer form {
+  margin-bottom: 0;
+}
+
+#raiseContainer input {
+  height: 2rem;
+}
+
+#raiseContainer label {
+  display: block;
+  margin-bottom: 1rem;
 }
