@@ -35,7 +35,7 @@
       </footer>
     </div>
 
-    <div id="chipsContainer" class="center" hidden>
+    <div id="chipsContainer" class="center popup" hidden>
       <button class="button" onclick="changeRaise(1);">1</button>
       <button class="button" onclick="changeRaise(5);">5</button>
       <button class="button" onclick="changeRaise(10);">10</button>
@@ -46,12 +46,18 @@
       <button class="button">X</button>
     </div>
 
-    <div id="loginContainer" class="center">
+    <div id="loginContainer" class="center popup">
       <form action="javascript:submitName()">
         <label for="nameInput" id="loginText">Please choose a name:</p>
         <input id="nameInput" autocomplete="off" placeholder="Enter a name" autofocus required>
         <button class="">Sumbit</button>
       </form>
+    </div>
+
+    <div id="winContainer" class="center popup" hidden>
+      <p>Choose the winner:</p>
+      <button class="button">Player 1</button>
+      <button class="button">Player 2</button>
     </div>
     
     <script src="/socket.io/socket.io.js"></script>

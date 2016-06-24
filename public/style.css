@@ -8,11 +8,11 @@ html, body {
 }
 
 .button {
-  padding: 0.4rem;
+  padding: 0.6rem;
   background: #fff;
   color: #424242;
   font-weight: bold;
-  border: 4px solid #fff;
+  border: none;
   border-radius: 2px;
   outline: none;
   font-size: 1rem;
@@ -120,19 +120,13 @@ input {
   margin: 0 2.5px;
 }
 
-#chips {
-  padding: 20px;
-  background: #F5F5F5;
-  width: max-content;
-}
-
 #chips p {
   display: inline;
   margin: 0 5px;
   font-weight: bold;
 }
 
-#loginContainer {
+.popup {
   padding: 20px;
   background: #fff;
   width: max-content;

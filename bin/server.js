@@ -86,8 +86,13 @@ io.on("connection", function (socket) {
             console.log("Not " + me.name + "'s turn");
         }
     });
-    socket.on("winnerIs", function (player) {
-        winnerIs(player);
+    socket.on("winnerIs", function (id) {
+        for (var _i = 0, players_2 = players; _i < players_2.length; _i++) {
+            var p = players_2[_i];
+            if (p.id == id) {
+                winnerIs(p);
+            }
+        }
     });
     socket.on("disconnect", function () {
         console.log(socket.id + " disconnected");
@@ -163,8 +168,8 @@ function nextPlayer() {
 }
 // Problem may be caused when someone is folded
 function allReady() {
-    for (var _i = 0, players_2 = players; _i < players_2.length; _i++) {
-        var p = players_2[_i];
+    for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
+        var p = players_3[_i];
         if (!p.ready()) {
             return false;
         }
@@ -173,8 +178,8 @@ function allReady() {
 }
 function folded() {
     var f = 0;
-    for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
-        var p = players_3[_i];
+    for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
+        var p = players_4[_i];
         if (p.folded) {
             f++;
         }
@@ -206,8 +211,8 @@ function newRound() {
     phase = 0;
     potTotal = 0;
     potPP = bigBlind;
-    for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
-        var p = players_4[_i];
+    for (var _i = 0, players_5 = players; _i < players_5.length; _i++) {
+        var p = players_5[_i];
         p.folded = false;
         p.inCurrentPot = 0;
         p.played = false;
@@ -232,8 +237,8 @@ function doTurn() {
     if (folded() == players.length - 1) {
         console.log("Only one player left");
         // Find the remaining player and make them the winner
-        for (var _i = 0, players_5 = players; _i < players_5.length; _i++) {
-            var p = players_5[_i];
+        for (var _i = 0, players_6 = players; _i < players_6.length; _i++) {
+            var p = players_6[_i];
             if (!p.folded) {
                 winnerIs(p);
             }
@@ -248,8 +253,8 @@ function doTurn() {
         phase++;
         console.log("Everybody is ready, going into phase " + phase);
         currentPlayer = dealer;
-        for (var _a = 0, players_6 = players; _a < players_6.length; _a++) {
-            var p = players_6[_a];
+        for (var _a = 0, players_7 = players; _a < players_7.length; _a++) {
+            var p = players_7[_a];
             p.played = false;
         }
         doTurn();

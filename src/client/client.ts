@@ -32,11 +32,13 @@ let page = {
   loginContainer: document.getElementById("loginContainer"),
   loginText: document.getElementById("loginText"),
   nameInput: <HTMLInputElement>document.getElementById("nameInput"),
-  cards: document.getElementById("cardContainer")
+  cards: document.getElementById("cardContainer"),
+  winContainer: document.getElementById("winContainer")
 }
 
 let socket = io();
 let userName = "";
+let players: Player[] = [];
 
 function submitName() {
   socket.emit("join", page.nameInput.value);
@@ -69,10 +71,21 @@ socket.on("choose", function() {
 
 socket.on("chooseWinner", function() {
   console.log("Time to choose the winner");
+  page.winContainer.hidden = false;
+  page.container.classList.add("blur");
+  page.winContainer.innerHTML = "<p>Choose the winner:</p>";
+  for (let p of players) {
+    if (!p.folded) {
+      page.winContainer.innerHTML += "<button class='button' onclick=winnerIs('" + p.id + "')>" + p.name + "</button>";
+    }
+  }
 });
 
-function winnerIs(player: Player) {
-  socket.emit("winnerIs", player);
+function winnerIs(id: string) {
+  console.log("Winner is " + id);
+  socket.emit("winnerIs", id);
+  page.winContainer.hidden = true;
+  page.container.classList.remove("blur");
 }
 
 // For testing, probably don't want this
@@ -84,6 +97,7 @@ socket.on("reconnect", function() {
 
 function updateDisplay(data?: updateObject) {
   if (data) {
+    players = data.players;
     page.roundDisplay.innerHTML = "Round: <b>" + data.round + "</b>";
     page.potDisplay.innerHTML = "Pot: <b>" + data.potTotal + "</b>";
 

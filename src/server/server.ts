@@ -88,8 +88,12 @@ io.on("connection", function(socket) {
     }
   });
 
-  socket.on("winnerIs", function(player: Player) {
-    winnerIs(player);
+  socket.on("winnerIs", function(id: string) {
+    for (let p of players) {
+      if (p.id == id) {
+        winnerIs(p);
+      }
+    }
   });
 
   socket.on("disconnect", function() {
