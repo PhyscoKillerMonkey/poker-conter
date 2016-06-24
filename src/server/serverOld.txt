@@ -1,0 +1,142 @@
+/// <reference path="../../typings/index.d.ts" />
+
+import express = require("express");
+let app = express();
+import http = require("http");
+let server = http.createServer(app);
+import socketio = require("socket.io");
+let io = socketio(server);
+
+import { Player, PokerManager } from "./poker.ts";
+
+// Setup the public folder for the web server
+app.use(express.static("public"));
+
+app.get("/", function(req, res) {
+  let filename = "index.html";
+  res.sendFile(__dirname + "/" + filename, function(err) {
+    if (err) {
+      console.error(err);
+      res.status(err.status).end();
+    } else {
+      console.log("Sent: " + filename);
+    }
+  });
+});
+
+io.on("connection", function(socket) {
+  let me: Player;
+  console.log(socket.id + " connected");
+
+  function myTurn(): boolean {
+    if (players[currentPlayer] == me) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  socket.on("join", function(name: string) {
+    let taken = false;
+    for (let p of players) {
+      if (p.name == name) {
+        taken = true;
+      }
+    }
+    if (me == undefined && !taken) {
+      console.log(name + " joined, ID: " + socket.id);
+      me = new Player(name, socket.id);
+      players.push(me);
+      updateClients();
+      socket.emit("nameAvaliable")
+    } else {
+      console.log("Name: " + name + ", not avaliable");
+      socket.emit("nameTaken");
+    }
+  });
+
+  socket.on("startGame", function() {
+    if (players.length >= 2) {
+      newRound();
+    } else {
+      console.log("Not enough players to start");
+    }
+  });
+
+  socket.on("check", function() {
+    if (myTurn()) {
+      console.log(me.name + " checked");
+      check();
+    } else {
+      console.log("Not " + me.name + "'s turn");
+    }
+  });
+
+  socket.on("raise", function(amount: string) {
+    if (myTurn()) {
+      console.log(me.name + " raised £" + amount);
+      raise(parseInt(amount));
+    } else {
+      console.log("Not " + me.name + "'s turn");
+    }
+  });
+
+  socket.on("fold", function() {
+    if (myTurn()) {
+      console.log(me.name + " folded");
+      fold();
+    } else {
+      console.log("Not " + me.name + "'s turn");
+    }
+  });
+
+  socket.on("winnerIs", function(id: string) {
+    for (let p of players) {
+      if (p.id == id) {
+        winnerIs(p);
+      }
+    }
+  });
+
+  socket.on("disconnect", function() {
+    console.log(socket.id + " disconnected");
+    players.splice(players.indexOf(me));
+    me = undefined;
+    updateClients();
+  });
+});
+
+server.listen(3000, function() {
+  console.log("Listening on port 3000");
+});
+
+function updateClients() {
+  io.emit("update", new updateObject());
+}
+
+function clientMessage(player: Player, msg: string) {
+  io.to(player.id).emit(msg);
+}
+
+// Object to pass to the clients when the game state changes
+class updateObject {
+  players: Player[];
+  currentPlayer: number;
+  dealer: number;
+  potTotal: number;
+  potPP: number;
+  round: number;
+  phase: number;
+
+  constructor() {
+    this.players = players;
+    this.currentPlayer = currentPlayer;
+    this.dealer = dealer;
+    this.potTotal = potTotal;
+    this.potPP = potPP;
+    this.round = round;
+    this.phase = phase;
+  }
+}
+
+let game = new PokerManager(room);
