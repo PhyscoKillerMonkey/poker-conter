@@ -171,13 +171,13 @@ socket.on("reconnect", function() {
 
 function check() {
   console.log("Check");
-  socket.emit("check");
+  socket.emit("play", { move: "check" });
 }
 
 function raise() {
   let r = page.raiseInput.value;
   console.log("Raise " + r);
-  socket.emit("raise", parseInt(r));
+  socket.emit("play", { move: "raise", amount: parseInt(r) });
   hideRaiseContainer(true);
 }
 
@@ -194,5 +194,5 @@ function hideRaiseContainer(hide: boolean) {
 
 function fold() {
   console.log("Fold");
-  socket.emit("fold");
+  socket.emit("play", { move: "fold" });
 }

@@ -29,7 +29,7 @@ io.on("connection", function (socket) {
     socket.on("disconnect", function () {
         console.log("User '" + userName + "', ID '" + socket.id + "' disconnected");
         if (userName != undefined && users[userName].room != undefined) {
-            console.log("User " + userName + " is leaving room " + users[userName].room);
+            console.log("User '" + userName + "' is leaving room '" + users[userName].room + "'");
             rooms[users[userName].room].leave(socket.id);
         }
         users[userName] = undefined;
@@ -58,6 +58,33 @@ io.on("connection", function (socket) {
             rooms[data.room].join(userName, socket.id);
             roomUpdate();
             rooms[data.room].gameUpdate();
+            console.log("User '" + userName + "' has connected joined '" + data.room + "'");
+        }
+    });
+    // ---------- In-room events ------------- //
+    socket.on("startGame", function () {
+        // Check that the client is the admin and there are >= 2 players
+        var room = rooms[users[userName].room];
+        if (room.game.players[0].id == socket.id && room.game.players.length >= 2) {
+            console.log("User '" + userName + "' has started the game in room '" + room.name + "'");
+            room.startGame();
+        }
+    });
+    socket.on("play", function (data) {
+        var game = rooms[users[userName].room].game;
+        if (game.round >= 1 && game.players[game.currentPlayer].id == socket.id) {
+            console.log("User '" + userName + "' played " + data.move);
+            switch (data.move) {
+                case "check":
+                    game.check();
+                    break;
+                case "raise":
+                    game.raise(data.amount);
+                    break;
+                case "fold":
+                    game.fold();
+                    break;
+            }
         }
     });
 });
@@ -101,12 +128,14 @@ var Room = (function () {
         this.gameUpdate();
     };
     Room.prototype.startGame = function () {
+        this.game.newRound();
     };
     Room.prototype.gameUpdate = function () {
         io.to(this.name).emit("update", {
             players: this.game.players,
             currentPlayer: this.game.currentPlayer,
             dealer: this.game.dealer,
+            phase: this.game.phase,
             potTotal: this.game.potTotal,
             potPP: this.game.potPP,
             round: this.game.round

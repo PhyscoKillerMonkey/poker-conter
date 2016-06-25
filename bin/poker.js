@@ -68,11 +68,17 @@ var PokerManager = (function () {
         }
         return f;
     };
-    PokerManager.prototype.raise = function (amount) {
-        this.potPP += amount;
-        console.log(this.potPP);
+    PokerManager.prototype.check = function () {
         var p = this.players[this.currentPlayer];
-        p.pay(this.potPP - p.inCurrentPot);
+        this.pay(this.potPP - p.inCurrentPot);
+        p.played = true;
+        this.nextPlayer();
+        this.doTurn();
+    };
+    PokerManager.prototype.raise = function (amount) {
+        var p = this.players[this.currentPlayer];
+        this.potPP += amount;
+        this.pay(this.potPP - p.inCurrentPot);
         p.played = true;
         this.nextPlayer();
         this.doTurn();
@@ -82,8 +88,13 @@ var PokerManager = (function () {
         this.nextPlayer();
         this.doTurn();
     };
+    PokerManager.prototype.pay = function (amount) {
+        this.players[this.currentPlayer].pay(amount);
+        this.potTotal += amount;
+    };
     PokerManager.prototype.newRound = function () {
         this.round++;
+        console.log("Starting round " + this.round);
         this.phase = 0;
         this.potTotal = 0;
         this.potPP = this.bigBlind;
@@ -100,10 +111,10 @@ var PokerManager = (function () {
         console.log(this.players[this.dealer].name + " is dealer");
         this.nextPlayer();
         console.log(this.players[this.currentPlayer].name + " is SB");
-        this.players[this.currentPlayer].pay(this.bigBlind / 2);
+        this.pay(this.bigBlind / 2);
         this.nextPlayer();
         console.log(this.players[this.currentPlayer].name + " is BB");
-        this.players[this.currentPlayer].pay(this.bigBlind);
+        this.pay(this.bigBlind);
         this.nextPlayer();
         console.log(this.players[this.currentPlayer].name + " is UTG");
         this.doTurn();
@@ -116,12 +127,13 @@ var PokerManager = (function () {
                 var p = _a[_i];
                 if (!p.folded) {
                     this.winnerIs(p);
+                    break;
                 }
             }
         }
         else if (this.phase == 4) {
             console.log("The game has ended, " + this.players[0].name + " is choosing a winner");
-            this.room.updateClients();
+            this.room.gameUpdate();
             this.room.clientMessage(this.players[0], "chooseWinner");
         }
         else if (this.allReady()) {
@@ -136,9 +148,8 @@ var PokerManager = (function () {
             this.doTurn();
         }
         else {
-            this.room.updateClients();
             console.log("Player " + this.players[this.currentPlayer].name + " has to choose");
-            this.room.clientMessage(this.players[this.currentPlayer], "choose");
+            this.room.gameUpdate();
         }
     };
     PokerManager.prototype.winnerIs = function (player) {
