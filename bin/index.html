@@ -7,7 +7,7 @@
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,300,300italic,400italic,500,500italic,700,700italic' rel='stylesheet' type='text/css'>
   </head>
   <body>
-    <div id="container" class="blur">
+    <div id="gameContainer" class="blur">
       <header id="header">
         <p id="roundDisplay">Round: <b>0</b></p>
         <p id="potDisplay">Pot: <b>0</b></p>
@@ -35,12 +35,23 @@
       </footer>
     </div>
 
-    <div id="loginContainer" class="center popup">
+    <div id="loginContainer" class="center popup"s>
       <form action="javascript:submitName();">
         <label for="nameInput" id="loginText">Please choose a name:</p>
         <input id="nameInput" autocomplete="off" placeholder="Enter a name" autofocus required>
         <button class="button" type="submit">Sumbit</button>
       </form>
+    </div>
+
+    <div id="roomContainer" class="center popup" hidden>
+      <form action="javascript:joinRoom()">
+        <label for="roomInput">Create room:</label>
+        <input id="roomInput" type="text" autocomplete="off" placeholder="Room name" required>
+        <input type="submit" value="Create">
+      </form>
+
+      <div id="existingRooms">
+        <p>Or join an existing room:</p>
     </div>
 
     <div id="raiseContainer" class="center popup" hidden>

@@ -6,6 +6,7 @@ var http = require("http");
 var server = http.createServer(app);
 var socketio = require("socket.io");
 var io = socketio(server);
+var poker_1 = require("./poker");
 // Setup the public folder for the web server
 app.use(express.static("public"));
 app.get("/", function (req, res) {
@@ -15,262 +16,102 @@ app.get("/", function (req, res) {
             console.error(err);
             res.status(err.status).end();
         }
-        else {
-            console.log("Sent: " + filename);
-        }
-    });
-});
-io.on("connection", function (socket) {
-    var me;
-    console.log(socket.id + " connected");
-    function myTurn() {
-        if (players[currentPlayer] == me) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    socket.on("join", function (name) {
-        var taken = false;
-        for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
-            var p = players_1[_i];
-            if (p.name == name) {
-                taken = true;
-            }
-        }
-        if (me == undefined && !taken) {
-            console.log(name + " joined, ID: " + socket.id);
-            me = new Player(name, socket.id);
-            players.push(me);
-            updateClients();
-            socket.emit("nameAvaliable");
-        }
-        else {
-            console.log("Name: " + name + ", not avaliable");
-            socket.emit("nameTaken");
-        }
-    });
-    socket.on("startGame", function () {
-        if (players.length >= 2) {
-            newRound();
-        }
-        else {
-            console.log("Not enough players to start");
-        }
-    });
-    socket.on("check", function () {
-        if (myTurn()) {
-            console.log(me.name + " checked");
-            check();
-        }
-        else {
-            console.log("Not " + me.name + "'s turn");
-        }
-    });
-    socket.on("raise", function (amount) {
-        if (myTurn()) {
-            console.log(me.name + " raised £" + amount);
-            raise(parseInt(amount));
-        }
-        else {
-            console.log("Not " + me.name + "'s turn");
-        }
-    });
-    socket.on("fold", function () {
-        if (myTurn()) {
-            console.log(me.name + " folded");
-            fold();
-        }
-        else {
-            console.log("Not " + me.name + "'s turn");
-        }
-    });
-    socket.on("winnerIs", function (id) {
-        for (var _i = 0, players_2 = players; _i < players_2.length; _i++) {
-            var p = players_2[_i];
-            if (p.id == id) {
-                winnerIs(p);
-            }
-        }
-    });
-    socket.on("disconnect", function () {
-        console.log(socket.id + " disconnected");
-        players.splice(players.indexOf(me));
-        me = undefined;
-        updateClients();
     });
 });
 server.listen(3000, function () {
     console.log("Listening on port 3000");
 });
-function updateClients() {
-    io.emit("update", new updateObject());
-}
-function clientMessage(player, msg) {
-    io.to(player.id).emit(msg);
-}
-// Object to pass to the clients when the game state changes
-var updateObject = (function () {
-    function updateObject() {
-        this.players = players;
-        this.currentPlayer = currentPlayer;
-        this.dealer = dealer;
-        this.potTotal = potTotal;
-        this.potPP = potPP;
-        this.round = round;
-        this.phase = phase;
-    }
-    return updateObject;
-}());
-/*************************************/
-/*          Poker Game Code          */
-/*************************************/
-var startingMoney = 100, bigBlind = 4;
-var players = [], currentPlayer = 0, dealer = -1, potTotal = 0, potPP = 0, round = 0, phase = 0;
-var Player = (function () {
-    function Player(name, id, money) {
-        this.name = name;
-        this.id = id;
-        this.money = money || startingMoney;
-        this.inCurrentPot = 0;
-        this.folded = false;
-        this.played = false;
-    }
-    Player.prototype.pay = function (amount) {
-        this.money -= amount;
-        this.inCurrentPot += amount;
-        potTotal += amount;
-    };
-    Player.prototype.ready = function () {
-        if (this.folded || (this.played && this.inCurrentPot == potPP)) {
-            return true;
+var users = {};
+var rooms = {};
+io.on("connection", function (socket) {
+    console.log("ID " + socket.id + " is connecting...");
+    var userName = undefined;
+    socket.on("disconnect", function () {
+        console.log("User '" + userName + "', ID '" + socket.id + "' disconnected");
+        if (userName != undefined && users[userName].room != undefined) {
+            console.log("User " + userName + " is leaving room " + users[userName].room);
+            rooms[users[userName].room].leave(socket.id);
         }
-        else if (this.inCurrentPot > potPP) {
-            console.error("Player " + this.name + " has more money in pot than total...");
+        users[userName] = undefined;
+        roomUpdate();
+    });
+    socket.on("getName", function (data) {
+        if (!users[data.name]) {
+            users[data.name] = { id: socket.id, socket: socket, room: undefined };
+            userName = data.name;
+            socket.emit("nameStatus", { avaliable: true });
+            roomUpdate(socket);
+            console.log("User '" + userName + "' connected");
         }
         else {
-            return false;
+            socket.emit("nameStatus", { avaliable: false });
         }
-    };
-    return Player;
-}());
-function nextPlayer() {
-    currentPlayer++;
-    if (currentPlayer >= players.length) {
-        // console.log("Out of bounds with " + currentPlayer);
-        currentPlayer = 0;
-    }
-    if (players[currentPlayer].folded) {
-        // console.log(currentPlayer + " folded, skipping");
-        nextPlayer();
-    }
-}
-// Problem may be caused when someone is folded
-function allReady() {
-    for (var _i = 0, players_3 = players; _i < players_3.length; _i++) {
-        var p = players_3[_i];
-        if (!p.ready()) {
-            return false;
-        }
-    }
-    return true;
-}
-function folded() {
-    var f = 0;
-    for (var _i = 0, players_4 = players; _i < players_4.length; _i++) {
-        var p = players_4[_i];
-        if (p.folded) {
-            f++;
-        }
-    }
-    return f;
-}
-function check() {
-    var p = players[currentPlayer];
-    p.pay(potPP - p.inCurrentPot);
-    p.played = true;
-    nextPlayer();
-    doTurn();
-}
-function raise(amount) {
-    console.log(potPP);
-    console.log(amount);
-    potPP += amount;
-    console.log(potPP);
-    var p = players[currentPlayer];
-    p.pay(potPP - p.inCurrentPot);
-    p.played = true;
-    nextPlayer();
-    doTurn();
-}
-function fold() {
-    players[currentPlayer].folded = true;
-    nextPlayer();
-    doTurn();
-}
-function newRound() {
-    round++;
-    phase = 0;
-    potTotal = 0;
-    potPP = bigBlind;
-    for (var _i = 0, players_5 = players; _i < players_5.length; _i++) {
-        var p = players_5[_i];
-        p.folded = false;
-        p.inCurrentPot = 0;
-        p.played = false;
-    }
-    // Make the dealer one more, then the player one more than him
-    currentPlayer = dealer;
-    nextPlayer();
-    dealer = currentPlayer;
-    console.log(players[dealer].name + " is dealer");
-    nextPlayer();
-    console.log(players[currentPlayer].name + " is SB");
-    players[currentPlayer].pay(bigBlind / 2);
-    nextPlayer();
-    console.log(players[currentPlayer].name + " is BB");
-    players[currentPlayer].pay(bigBlind);
-    nextPlayer();
-    console.log(players[currentPlayer].name + " is UTG");
-    doTurn();
-}
-function doTurn() {
-    if (folded() == players.length - 1) {
-        console.log("Only one player left");
-        // Find the remaining player and make them the winner
-        for (var _i = 0, players_6 = players; _i < players_6.length; _i++) {
-            var p = players_6[_i];
-            if (!p.folded) {
-                winnerIs(p);
+    });
+    socket.on("joinRoom", function (data) {
+        // Only allow client to connect to one room
+        if (users[userName].room == undefined) {
+            socket.join(data.room);
+            users[userName].room = data.room;
+            if (rooms[data.room] == undefined) {
+                rooms[data.room] = new Room(data.room);
             }
+            rooms[data.room].join(userName, socket.id);
+            roomUpdate();
+            rooms[data.room].gameUpdate();
+        }
+    });
+});
+function roomUpdate(socket) {
+    var rooms = {};
+    for (var r in io.sockets.adapter.rooms) {
+        if (r.substr(0, 2) != "/#") {
+            var sockets = [];
+            for (var user in io.sockets.adapter.rooms[r].sockets) {
+                sockets.push(user);
+            }
+            rooms[r] = sockets;
         }
     }
-    else if (phase == 4) {
-        console.log("The game has ended, " + players[0].name + " is choosing a winner");
-        updateClients();
-        clientMessage(players[0], "chooseWinner");
-    }
-    else if (allReady()) {
-        // Go into the next phase
-        phase++;
-        console.log("Everybody is ready, going into phase " + phase);
-        currentPlayer = dealer;
-        for (var _a = 0, players_7 = players; _a < players_7.length; _a++) {
-            var p = players_7[_a];
-            p.played = false;
-        }
-        doTurn();
+    if (socket) {
+        socket.emit("roomUpdate", rooms);
     }
     else {
-        updateClients();
-        console.log("Player " + players[currentPlayer].name + " has to choose");
-        clientMessage(players[currentPlayer], "choose");
+        io.sockets.emit("roomUpdate", rooms);
     }
 }
-function winnerIs(player) {
-    console.log("Winner is " + player.name);
-    player.money += potTotal;
-    newRound();
-}
+var Room = (function () {
+    function Room(name) {
+        this.inProgress = false;
+        this.name = name;
+        this.game = new poker_1.PokerManager(this);
+    }
+    Room.prototype.join = function (name, id) {
+        var player = new poker_1.Player(name, id, this.game.startingMoney);
+        this.game.players.push(player);
+        return player;
+    };
+    Room.prototype.leave = function (id) {
+        var players = this.game.players;
+        for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
+            var p = players_1[_i];
+            if (p.id == id) {
+                players.splice(players.indexOf(p));
+            }
+        }
+        this.gameUpdate();
+    };
+    Room.prototype.startGame = function () {
+    };
+    Room.prototype.gameUpdate = function () {
+        io.to(this.name).emit("update", {
+            players: this.game.players,
+            currentPlayer: this.game.currentPlayer,
+            dealer: this.game.dealer,
+            potTotal: this.game.potTotal,
+            potPP: this.game.potPP,
+            round: this.game.round
+        });
+    };
+    return Room;
+}());
 //# sourceMappingURL=server.js.map

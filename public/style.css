@@ -59,7 +59,7 @@ input {
   transform: translate(-50%, -50%);
 }
 
-#container {
+#gameContainer {
   height: 100%;
   position: relative;
   overflow: hidden;

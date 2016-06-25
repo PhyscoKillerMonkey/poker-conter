@@ -12,7 +12,7 @@ var Player = (function () {
 }());
 // DOM elements
 var page = {
-    container: document.getElementById("container"),
+    gameContainer: document.getElementById("gameContainer"),
     roundDisplay: document.getElementById("roundDisplay"),
     potDisplay: document.getElementById("potDisplay"),
     moneyDisplay: document.getElementById("moneyDisplay"),
@@ -24,93 +24,88 @@ var page = {
     loginText: document.getElementById("loginText"),
     nameInput: document.getElementById("nameInput"),
     cards: document.getElementById("cardContainer"),
-    winContainer: document.getElementById("winContainer")
+    winContainer: document.getElementById("winContainer"),
+    roomContainer: document.getElementById("roomContainer"),
+    roomInput: document.getElementById("roomInput"),
+    existingRooms: document.getElementById("existingRooms")
 };
 var socket = io();
-var userName = "";
+var userName = undefined;
 var players = [];
-function submitName() {
-    socket.emit("join", page.nameInput.value);
-    userName = page.nameInput.value;
+function submitName(useExisting) {
+    if (!useExisting) {
+        userName = page.nameInput.value;
+    }
+    socket.emit("getName", { name: userName });
 }
-socket.on("nameAvaliable", function () {
-    console.log("Name was accepted");
-    page.loginContainer.hidden = true;
-    page.container.classList.remove("blur");
+socket.on("nameStatus", function (data) {
+    if (data.avaliable) {
+        console.log("Name was accepted");
+        page.loginContainer.hidden = true;
+        page.roomContainer.hidden = false;
+    }
+    else {
+        page.loginText.innerHTML = "Name is already taken, please choose another:";
+    }
 });
-socket.on("nameTaken", function () {
-    page.loginText.innerHTML = "Name is already taken, please choose another:";
+function joinRoom(room) {
+    if (!room) {
+        room = page.roomInput.value;
+    }
+    socket.emit("joinRoom", { room: room });
+    page.roomContainer.hidden = true;
+    page.gameContainer.classList.remove("blur");
+}
+socket.on("roomUpdate", function (rooms) {
+    console.log(rooms);
+    var e = page.existingRooms;
+    e.innerHTML = "<p>" + e.children[0].innerHTML + "</p>";
+    var _loop_1 = function(room) {
+        var button = document.createElement("button");
+        button.innerText = room;
+        button.onclick = function () { joinRoom(room); };
+        e.appendChild(button);
+    };
+    for (var room in rooms) {
+        _loop_1(room);
+    }
 });
 function startGame() {
     socket.emit("startGame");
 }
 socket.on("update", function (data) {
     console.log(data);
-    console.log("We are " + socket.id);
-    updateDisplay(data);
-});
-socket.on("choose", function () {
-    console.log("Time to choose");
-    // Enable buttons
-});
-socket.on("chooseWinner", function () {
-    console.log("Time to choose the winner");
-    page.winContainer.hidden = false;
-    page.container.classList.add("blur");
-    page.winContainer.innerHTML = "<p>Choose the winner:</p>";
-    for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
-        var p = players_1[_i];
-        if (!p.folded) {
-            page.winContainer.innerHTML += "<button class='button' onclick=winnerIs('" + p.id + "')>" + p.name + "</button>";
-        }
-    }
-});
-function winnerIs(id) {
-    console.log("Winner is " + id);
-    socket.emit("winnerIs", id);
-    page.winContainer.hidden = true;
-    page.container.classList.remove("blur");
-}
-// For testing, probably don't want this
-socket.on("reconnect", function () {
-    if (userName != "") {
-        socket.emit("join", userName);
-    }
-});
-function updateDisplay(data) {
     if (data) {
-        players = data.players;
         page.roundDisplay.innerHTML = "Round: <b>" + data.round + "</b>";
         page.potDisplay.innerHTML = "Pot: <b>" + data.potTotal + "</b>";
-        var pName = data.players[data.currentPlayer].name;
-        var betDifference = data.potPP - data.players[data.currentPlayer].inCurrentPot;
-        if (betDifference != 0 && pName == userName) {
-            page.checkButton.innerHTML = "Call " + betDifference;
-        }
-        else {
-            page.checkButton.innerHTML = "Check";
-        }
+        // Our money
         page.leaderboard.innerHTML = "";
         for (var _i = 0, _a = data.players; _i < _a.length; _i++) {
             var p = _a[_i];
-            var line = document.createElement("p");
+            var para = document.createElement("p");
             if (p.name == userName) {
-                p.name = "Me";
-                page.moneyDisplay.innerHTML = "Money: <b>" + p.money + "</b>";
-            }
-            if (p.folded) {
-                line.innerHTML = "<s>" + p.name + ": <b>" + p.money + "</b></s>";
+                para.innerHTML = "Me";
             }
             else {
-                line.innerHTML = p.name + ": <b>" + p.money + "</b>";
+                para.innerHTML = p.name;
             }
-            if (data.players[data.currentPlayer] == p) {
-                line.innerHTML = "<u>" + line.innerHTML + "</u>";
+            para.innerHTML += ": <b>" + p.money + "</b>";
+            if (p.inCurrentPot != 0) {
+                para.innerHTML += " &#10132; " + p.inCurrentPot;
             }
-            if (p.inCurrentPot > 0) {
-                line.innerHTML += " &#10132; " + p.inCurrentPot;
+            if (p.folded) {
+                para.innerHTML = "<s>" + para.innerHTML + "</s>";
             }
-            page.leaderboard.appendChild(line);
+            if (data.currentPlayer == data.players.indexOf(p)) {
+                para.innerHTML = "<u>" + para.innerHTML + "</u>";
+            }
+            page.leaderboard.appendChild(para);
+        }
+        if (data.currentPlayer >= 0 && data.players[data.currentPlayer].name == userName) {
+            console.log("Our turn");
+        }
+        else {
+            console.log("Not our turn");
         }
         switch (data.phase) {
             case 0:
@@ -131,41 +126,54 @@ function updateDisplay(data) {
                 break;
         }
     }
+});
+socket.on("chooseWinner", function () {
+    console.log("Time to choose the winner");
+    page.winContainer.hidden = false;
+    page.gameContainer.classList.add("blur");
+    page.winContainer.innerHTML = "<p>Choose the winner:</p>";
+    for (var _i = 0, players_1 = players; _i < players_1.length; _i++) {
+        var p = players_1[_i];
+        if (!p.folded) {
+            page.winContainer.innerHTML += "<button class='button' onclick=winnerIs('" + p.id + "')>" + p.name + "</button>";
+        }
+    }
+});
+function winnerIs(id) {
+    console.log("Winner is " + id);
+    socket.emit("winnerIs", id);
+    page.winContainer.hidden = true;
+    page.gameContainer.classList.remove("blur");
 }
-var raiseAmount = 1;
+// For testing, probably don't want this
+socket.on("reconnect", function () {
+    if (userName != undefined) {
+        submitName(true);
+    }
+});
 function check() {
     console.log("Check");
     socket.emit("check");
-    // Disable buttons
 }
-// function changeRaise(amount: number) {
-//   raiseAmount += amount;
-//   if (raiseAmount <= 0) {
-//     raiseAmount = 1;
-//   }
-//   updateDisplay();
-// }
 function raise() {
     var r = page.raiseInput.value;
     console.log("Raise " + r);
     socket.emit("raise", parseInt(r));
     hideRaiseContainer(true);
-    // Disable buttons
 }
 function hideRaiseContainer(hide) {
     if (hide) {
         page.raiseContainer.hidden = true;
-        page.container.classList.remove("blur");
+        page.gameContainer.classList.remove("blur");
     }
     else {
         page.raiseContainer.hidden = false;
-        page.container.classList.add("blur");
+        page.gameContainer.classList.add("blur");
         page.raiseInput.value = "1";
     }
 }
 function fold() {
     console.log("Fold");
     socket.emit("fold");
-    // Disable buttons
 }
 //# sourceMappingURL=client.js.map

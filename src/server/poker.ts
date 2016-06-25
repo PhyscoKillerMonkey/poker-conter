@@ -33,14 +33,14 @@ export class Player {
 }
 
 export class PokerManager {
-  private startingMoney: number;
+  startingMoney: number;
   private bigBlind: number;
-  private players: Player[] = [];
-  private currentPlayer = 0;
-  private dealer = -1;
-  private potTotal = 0;
-  private potPP = 0;
-  private round = 0;
+  players: Player[] = [];
+  currentPlayer = -1;
+  dealer = -1;
+  potTotal = 0;
+  potPP = 0;
+  round = 0;
   private phase = 0;
   private room;
 
