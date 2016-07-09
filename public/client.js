@@ -50,6 +50,8 @@ socket.on("nameStatus", function (data) {
     }
     else {
         page.loginText.innerHTML = "Name is already taken, please choose another:";
+        page.nameInput.value = "";
+        page.nameInput.focus();
     }
 });
 function joinRoom(room) {

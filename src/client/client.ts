@@ -62,6 +62,8 @@ socket.on("nameStatus", function(data) {
     page.roomContainer.hidden = false;
   } else {
     page.loginText.innerHTML = "Name is already taken, please choose another:";
+    page.nameInput.value = "";
+    page.nameInput.focus();
   }
 });
 
