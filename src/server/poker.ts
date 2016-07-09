@@ -143,14 +143,13 @@ export class PokerManager {
       // Find the remaining player and make them the winner
       for (let p of this.players) {
         if (!p.folded) {
-          this.winnerIs(p);
+          this.winnerIs(p.id);
           break;
         }
       }
     } else if (this.phase == 4) {
       console.log("The game has ended, " + this.players[0].name + " is choosing a winner");
       this.room.gameUpdate();
-      this.room.clientMessage(this.players[0], "chooseWinner");
     } else if (this.allReady()) {
       // Go into the next phase
       this.phase++;
@@ -167,9 +166,13 @@ export class PokerManager {
     }
   }
 
-  private winnerIs(player: Player) {
-    console.log("Winner is " + player.name);
-    player.money += this.potTotal;
-    this.newRound();
+  winnerIs(id: string) {
+    for (let p of this.players) {
+      if (p.id == id) {
+        console.log("Winner is " + p.name);
+        p.money += this.potTotal;
+        this.newRound();
+      }
+    }
   }
 }

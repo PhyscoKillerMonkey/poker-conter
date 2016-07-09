@@ -101,8 +101,9 @@ socket.on("update", function(data) {
     page.potDisplay.innerHTML = "Pot: <b>" + data.potTotal + "</b>";
     // Our money
 
+    players = data.players;
     page.leaderboard.innerHTML = "";
-    for (let p of data.players) {
+    for (let p of players) {
       let para = document.createElement("p");
       if (p.name == userName) {
         para.innerHTML = "Me";
@@ -122,7 +123,7 @@ socket.on("update", function(data) {
       page.leaderboard.appendChild(para);
     }
 
-    if (data.currentPlayer >= 0 && data.players[data.currentPlayer].name == userName) {
+    if (data.currentPlayer >= 0 && players[data.currentPlayer].name == userName) {
       console.log("Our turn");
       // Enable buttons
     } else {
@@ -131,7 +132,7 @@ socket.on("update", function(data) {
     }
 
     // Check whether to show the start button
-    if (data.round == 0 && data.players[0].name == userName) {
+    if (data.round == 0 && players[0].name == userName) {
       page.startButton.hidden = false;
     }
 
@@ -153,10 +154,15 @@ socket.on("update", function(data) {
         page.cards.children[2].classList.add("filled");
         break;
     }
+
+    // Check if the game has finished
+    if (data.phase == 4 && players[0].name == userName) {
+      chooseWinner();
+    }
   }
 });
 
-socket.on("chooseWinner", function() {
+function chooseWinner() {
   console.log("Time to choose the winner");
   page.winContainer.hidden = false;
   page.gameContainer.classList.add("blur");
@@ -166,11 +172,11 @@ socket.on("chooseWinner", function() {
       page.winContainer.innerHTML += "<button class='button' onclick=winnerIs('" + p.id + "')>" + p.name + "</button>";
     }
   }
-});
+}
 
 function winnerIs(id: string) {
   console.log("Winner is " + id);
-  socket.emit("winnerIs", id);
+  socket.emit("winnerIs", { id: id });
   page.winContainer.hidden = true;
   page.gameContainer.classList.remove("blur");
 }

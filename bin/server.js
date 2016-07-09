@@ -64,27 +64,39 @@ io.on("connection", function (socket) {
     // ---------- In-room events ------------- //
     socket.on("startGame", function () {
         // Check that the client is the admin and there are >= 2 players
-        var room = rooms[users[userName].room];
-        if (room.game.players[0].id == socket.id && room.game.players.length >= 2) {
-            console.log("User '" + userName + "' has started the game in room '" + room.name + "'");
-            room.startGame();
+        if (users[userName].room != undefined) {
+            var room = rooms[users[userName].room];
+            if (room.game.players[0].id == socket.id && room.game.players.length >= 2) {
+                console.log("User '" + userName + "' has started the game in room '" + room.name + "'");
+                room.startGame();
+            }
         }
     });
     socket.on("play", function (data) {
-        var game = rooms[users[userName].room].game;
-        if (game.round >= 1 && game.players[game.currentPlayer].id == socket.id) {
-            console.log("User '" + userName + "' played " + data.move);
-            switch (data.move) {
-                case "check":
-                    game.check();
-                    break;
-                case "raise":
-                    game.raise(data.amount);
-                    break;
-                case "fold":
-                    game.fold();
-                    break;
+        // Check the player is in a room
+        if (users[userName].room != undefined) {
+            var game = rooms[users[userName].room].game;
+            if (game.round >= 1 && game.players[game.currentPlayer].id == socket.id) {
+                console.log("User '" + userName + "' played " + data.move);
+                switch (data.move) {
+                    case "check":
+                        game.check();
+                        break;
+                    case "raise":
+                        game.raise(data.amount);
+                        break;
+                    case "fold":
+                        game.fold();
+                        break;
+                }
             }
+        }
+    });
+    socket.on("winnerIs", function (data) {
+        // Check the player is in a room
+        if (users[userName].room != undefined) {
+            var game = rooms[users[userName].room].game;
+            game.winnerIs(data.id);
         }
     });
 });

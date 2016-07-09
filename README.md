@@ -12,3 +12,5 @@ Ever find yourself wanting to play poker but don't have any chips? Poker-counter
 - ~~Only show "start" button for admin~~
 - Make sure that mobiles do not disconnect when screen turns off (maybe https://github.com/richtr/NoSleep.js)
 - Change start button to fill screen more
+- Show who is the dealer
+- Help menu showing the valid hands

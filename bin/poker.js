@@ -126,7 +126,7 @@ var PokerManager = (function () {
             for (var _i = 0, _a = this.players; _i < _a.length; _i++) {
                 var p = _a[_i];
                 if (!p.folded) {
-                    this.winnerIs(p);
+                    this.winnerIs(p.id);
                     break;
                 }
             }
@@ -134,7 +134,6 @@ var PokerManager = (function () {
         else if (this.phase == 4) {
             console.log("The game has ended, " + this.players[0].name + " is choosing a winner");
             this.room.gameUpdate();
-            this.room.clientMessage(this.players[0], "chooseWinner");
         }
         else if (this.allReady()) {
             // Go into the next phase
@@ -152,10 +151,15 @@ var PokerManager = (function () {
             this.room.gameUpdate();
         }
     };
-    PokerManager.prototype.winnerIs = function (player) {
-        console.log("Winner is " + player.name);
-        player.money += this.potTotal;
-        this.newRound();
+    PokerManager.prototype.winnerIs = function (id) {
+        for (var _i = 0, _a = this.players; _i < _a.length; _i++) {
+            var p = _a[_i];
+            if (p.id == id) {
+                console.log("Winner is " + p.name);
+                p.money += this.potTotal;
+                this.newRound();
+            }
+        }
     };
     return PokerManager;
 }());
