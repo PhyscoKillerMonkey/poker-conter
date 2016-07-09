@@ -19,24 +19,29 @@ class Player {
   folded: boolean; 
 }
 
+function byID(id: string): HTMLElement {
+  return document.getElementById(id);
+}
+
 // DOM elements
 let page = {
-  gameContainer: document.getElementById("gameContainer"),
-  roundDisplay: document.getElementById("roundDisplay"),
-  potDisplay: document.getElementById("potDisplay"),
-  moneyDisplay: document.getElementById("moneyDisplay"),
-  leaderboard: document.getElementById("leaderboard"),
-  checkButton: document.getElementById("checkButton"),
-  raiseContainer: document.getElementById("raiseContainer"),
-  raiseInput: <HTMLInputElement>document.getElementById("raiseInput"),
-  loginContainer: document.getElementById("loginContainer"),
-  loginText: document.getElementById("loginText"),
-  nameInput: <HTMLInputElement>document.getElementById("nameInput"),
-  cards: document.getElementById("cardContainer"),
-  winContainer: document.getElementById("winContainer"),
-  roomContainer: document.getElementById("roomContainer"),
-  roomInput: <HTMLInputElement>document.getElementById("roomInput"),
-  existingRooms: document.getElementById("existingRooms")
+  gameContainer: byID("gameContainer"),
+  roundDisplay: byID("roundDisplay"),
+  potDisplay: byID("potDisplay"),
+  moneyDisplay: byID("moneyDisplay"),
+  leaderboard: byID("leaderboard"),
+  checkButton: byID("checkButton"),
+  raiseContainer: byID("raiseContainer"),
+  raiseInput: <HTMLInputElement>byID("raiseInput"),
+  loginContainer: byID("loginContainer"),
+  loginText: byID("loginText"),
+  nameInput: <HTMLInputElement>byID("nameInput"),
+  cards: byID("cardContainer"),
+  winContainer: byID("winContainer"),
+  roomContainer: byID("roomContainer"),
+  roomInput: <HTMLInputElement>byID("roomInput"),
+  existingRooms: byID("existingRooms"),
+  startButton: byID("startButton")
 }
 
 let socket = io();
@@ -83,6 +88,7 @@ socket.on("roomUpdate", function(rooms: {[room:string]:string[]}) {
 
 function startGame() {
   socket.emit("startGame");
+  page.startButton.hidden = true;
 }
 
 socket.on("update", function(data) {
@@ -120,6 +126,13 @@ socket.on("update", function(data) {
     } else {
       console.log("Not our turn");
       // Disable buttons
+    }
+
+    console.log(data.round + " " + data.players[0].name + " " + userName);
+    // Check whether to show the start button
+    if (data.round == 0 && data.players[0].name == userName) {
+      console.log("Show");
+      page.startButton.hidden = false;
     }
 
     switch(data.phase) {
