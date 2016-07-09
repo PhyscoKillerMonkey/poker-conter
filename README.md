@@ -9,5 +9,6 @@ Ever find yourself wanting to play poker but don't have any chips? Poker-counter
   - Players should not be able to join an already running game
 - Prompts to deal the cards, the game admin must dismiss these, other players see "wait for admin to deal"
 - Disable buttons when not players turn
-- Only show "start" button for admin
+- ~~Only show "start" button for admin~~
 - Make sure that mobiles do not disconnect when screen turns off (maybe https://github.com/richtr/NoSleep.js)
+- Change start button to fill screen more
