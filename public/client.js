@@ -46,12 +46,13 @@ socket.on("nameStatus", function (data) {
     if (data.avaliable) {
         console.log("Name was accepted");
         page.loginContainer.hidden = true;
+        page.gameContainer.hidden = true;
         page.roomContainer.hidden = false;
+        page.roomInput.focus();
     }
     else {
-        page.loginText.innerHTML = "Name is already taken, please choose another:";
-        page.nameInput.value = "";
-        page.nameInput.focus();
+        page.nameInput.nextElementSibling.classList.remove("invisible");
+        page.nameInput.select();
     }
 });
 function joinRoom(room) {
@@ -60,7 +61,7 @@ function joinRoom(room) {
     }
     socket.emit("joinRoom", { room: room });
     page.roomContainer.hidden = true;
-    page.gameContainer.classList.remove("blur");
+    page.gameContainer.hidden = false;
 }
 socket.on("roomUpdate", function (rooms) {
     console.log(rooms);
@@ -69,6 +70,7 @@ socket.on("roomUpdate", function (rooms) {
     var _loop_1 = function(room) {
         var button = document.createElement("button");
         button.innerText = room;
+        button.classList.add("button", "btn-accent");
         button.onclick = function () { joinRoom(room); };
         e.appendChild(button);
     };
